@@ -1,0 +1,5 @@
+wwwroot\css\app.css
+wwwroot\css\bootstrap\bootstrap.min.css
+wwwroot\Images\LandingPage.png
+wwwroot\Images\Logo.png
+wwwroot\index.html
