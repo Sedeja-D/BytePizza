@@ -1,5 +1,13 @@
-﻿################################################################################
-# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
-################################################################################
-
-/BytePizzaPrototype/BytePizzaPrototype.sln
+﻿.vs/
+bin/
+obj/
+*.user
+*.suo
+*.userprofile
+*.bak
+*.tmp
+packages/
+project.lock.json
+project.assets.json
+publish/
+*.publish.xml
