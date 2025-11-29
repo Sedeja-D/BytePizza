@@ -1,6 +1,6 @@
 /*This file is for global styling of the UI across the entire app. 
     To style specific pages, open the pages folder and select the
-    css file associated with the page that you are working on
+    css file associated with the page that you are working on.
 */
 html, body {
     height: 100%;
@@ -8,6 +8,7 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: aliceblue;
 }
+/*
 body {
     background-image: url('/Images/LandingPage.png');
     background-size: cover;
@@ -16,7 +17,7 @@ body {
     background-attachment: fixed;
     background-color: #1E1E1E
 }
-
+*/
 h1:focus {
     outline: none;
 }
@@ -61,5 +62,3 @@ a, .btn-link {
         right: 0.75rem;
         top: 0.5rem;
     }
-
-

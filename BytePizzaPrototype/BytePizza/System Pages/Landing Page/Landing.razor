@@ -1,15 +1,178 @@
 @page "/"
-@inject NavigationManager NavManager
 
 <div class="landing-page">
-    <style>
-        .brand {
-            padding-left: 80px;
-        }
-    </style>
-    <header class="landing-header">
-        <div class="brand">
-            <img src="/images/Logo.png" alt="Byte Pizza Logo" class="brand-logo" />
+
+        <!-- Main nav buttons -->
+        
+        <div class="landing-nav-buttons">
+        <button class="landing-btn" @onclick="ViewMenu">View Menu</button>
+        <button class="landing-btn" @onclick="OpenLogin">Order Delivery</button>
+        <button class="landing-btn" @onclick="OpenLogin">Order Pickup</button>
+    </div>
+
+    <!-- Nav icons -->
+    <div class="landing-icons">
+        <!-- Profile -->
+        <button class="icon-plain" @onclick="GoToProfile">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 12c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"
+                    fill="none" stroke="white" stroke-width="1.6" />
+            </svg>
+        </button>
+
+        <!-- Cart -->
+        <button class="icon-plain" @onclick="OpenCart">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M3 4h2l2 12h11l2-8H8" 
+                    fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="10" cy="19" r="1.4" fill="white" />
+                <circle cx="17" cy="19" r="1.4" fill="white" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- ORDER NOW -->
+    <div class="landing-main-cta">
+        <button class="landing-cta-btn" @onclick="OpenLogin">ORDER NOW</button>
+    </div>
+
+        <!-- LOGIN POPUP -->
+    @if (ShowLogin)
+    {
+        <div class="login-overlay">
+            <div class="login-box">
+
+                <!-- Close Button -->
+                <button class="close-btn" @onclick="CloseLogin">✕</button>
+
+                <h1 class="login-title">Login</h1>
+
+                @if (ShowError)
+                {
+                    <div class="error-text">Invalid number or password</div>
+                }
+
+                <!-- Inputs/icons -->
+                <div class="input-group">
+                    <span class="input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                        </svg>
+                    </span>
+                    <input @bind="Phone" placeholder="Phone Number" />
+                </div>
+
+                <div class="input-group">
+                    <span class="input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                            <path d="M17 8h-1V6c0-2.8-2.2-5-5-5S6 3.2 6 6v2H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zM8 6c0-1.7 1.3-3 3-3s3 1.3 3 3v2H8V6zm9 14H5V10h12v10z"/>
+                        </svg>
+                    </span>
+
+                    <input type="password" @bind="Password" placeholder="Password" />
+                </div>
+
+                <p class="forgot">Forgot Password</p>
+
+                <button class="login-btn" @onclick="SubmitLogin">LOGIN</button>
+
+                <p class="signup-text">
+                    Not a member? <span class="signup-link">Sign up now</span>
+                </p>
+            </div>
         </div>
-    </header>
+    }
+
+    @if (ShowCart)
+    {
+        <div class="cart-overlay">
+            <div class="cart-panel">
+                <div class="cart-header">
+                    <span class="cart-title">Your Order</span>
+                    <button class="cart-close" @onclick="CloseCart">Close</button>
+                </div>
+
+                <div class="cart-items">
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">Byte Pizza - $14.49</div>
+                            <div class="cart-item-desc">Thin Crust, Provolone, Sausage, Mushroom, Black Olives</div>
+                        </div>
+                        <div class="cart-qty">
+                            <button>-</button>
+                            <span>1</span>
+                            <button>+</button>
+                        </div>
+                    </div>
+
+                    <div class="cart-item">
+                        <div class="cart-item-info">
+                            <div class="cart-item-name">Wings (8) - $9.99</div>
+                            <div class="cart-item-desc">BBQ</div>
+                        </div>
+                        <div class="cart-qty">
+                            <button>-</button>
+                            <span>1</span>
+                            <button>+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="cart-summary">
+                    <div class="cart-line">
+                        <span>Subtotal</span>
+                        <span>$24.48</span>
+                    </div>
+                    <div class="cart-line">
+                        <span>Tax</span>
+                        <span>$4.25</span>
+                    </div>
+                    <hr />
+                    <div class="cart-total">
+                        <span>Total</span>
+                        <span>$28.74</span>
+                    </div>
+                </div>
+
+                <button class="checkout-btn">CHECK OUT</button>
+            </div>
+        </div>
+    }
+
 </div>
+
+@code {
+    [Inject] NavigationManager Nav { get; set; }
+
+    bool ShowLogin = false;
+    bool ShowError = false;
+
+    string Phone = "";
+    string Password = "";
+
+    void OpenLogin() => ShowLogin = true;
+    void CloseLogin() => ShowLogin = false;
+
+    void ViewMenu() => Nav.NavigateTo("/menu");
+
+    void SubmitLogin()
+    {
+        if (Phone == "" || Password == "")
+        {
+            ShowError = true;
+            return;
+        }
+
+        // Redirect after successful login
+        Nav.NavigateTo("/home"); 
+    }
+
+        void GoToProfile() => Nav.NavigateTo("/profile");
+    bool ShowCart = false;
+
+    void OpenCart() => ShowCart = true;
+
+    void CloseCart() => ShowCart = false;
+
+
+}

@@ -1,0 +1,313 @@
+.landing-page {
+    height: 100vh;
+    width: 100%;
+    background-image: url('/Images/LandingPage1.png');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+}
+
+/* Main nav buttons */
+.landing-nav-buttons {
+    position: absolute;
+    top: 24px;
+    right: 190px;
+    display: flex;
+    gap: 15px;
+}
+
+/* big ORDER NOW button */
+.landing-main-cta {
+    position: absolute;
+    left: 65px;
+    bottom: 200px;
+}
+
+/*  ^ button tweaks*/
+.landing-cta-btn {
+    padding: 22px 70px; 
+    border-radius: 10px;
+    border: none;
+    font-weight: 800;
+    font-size: 20px;
+    cursor: pointer;
+    background-color: #ff4b4b;
+    color: white;
+    box-shadow: 0px 4px 10px rgba(0,0,0,0.3);
+}
+
+/* Main button tweaks*/
+.landing-btn {
+    padding: 17px 35px;
+    border-radius: 6px;
+    border: none;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    background-color: #ff4b4b;
+    color: white;
+}
+
+/* Icons buttons */
+.landing-icons {
+    position: absolute;
+    top: 30px;
+    right: 50px;
+    display: flex;
+    gap: 20px;
+}
+
+.icon-plain {
+    background: transparent;
+    border: none;
+    padding: 0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-plain svg {
+    width: 45px;
+    height: 45px;
+    stroke: white;
+}
+
+
+/* dim background when popup opens */
+/* Dark blurred overlay */
+.login-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 100vw;
+    backdrop-filter: blur(8px) brightness(0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Login frame */
+.login-box {
+    background: #1e262c;
+    padding: 40px;
+    width: 420px;
+    border-radius: 12px;
+    color: white;
+    position: relative;
+    text-align: center;
+    border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+/* Centered Login title */
+.login-title {
+    font-size: 32px;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+/* Close button */
+.close-btn {
+    position: absolute;
+    top: 12px;
+    right: 16px;
+    font-size: 26px;
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+/* Error text */
+.error-text {
+    color: #ff4444;
+    margin-bottom: 14px;
+    font-weight: bold;
+}
+
+/* Input fields */
+.input-group {
+    display: flex;
+    align-items: center;
+    background: #2a3239;
+    padding: 10px 16px;
+    border-radius: 30px;
+    margin: 12px 0;
+}
+
+.input-group input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: white;
+    font-size: 16px;
+}
+
+.input-icon {
+    margin-right: 10px;
+    font-size: 18px;
+}
+
+/* Forgot password */
+.forgot {
+    margin-top: 8px;
+    color: #cfcfcf;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* Login button */
+.login-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 30px;
+    border: none;
+    background: #ff4b4b;
+    color: white;
+    font-weight: bold;
+    font-size: 16px;
+    margin-top: 14px;
+    cursor: pointer;
+}
+
+/* Signup line */
+.signup-text {
+    margin-top: 14px;
+    font-size: 14px;
+}
+
+.signup-link {
+    color: #ff4b4b;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/*  cart overlay */
+.cart-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    justify-content: flex-end;
+    backdrop-filter: blur(6px) brightness(0.7);
+    z-index: 1200;
+}
+
+/* right side panel */
+.cart-panel {
+    width: 360px;
+    height: 100%;
+    background: #2b333a;
+    padding: 32px 28px;
+    box-shadow: -4px 0 16px rgba(0,0,0,0.4);
+    color: #f5f5f5;
+    display: flex;
+    flex-direction: column;
+}
+
+/* cart title + close */
+.cart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.cart-title {
+    font-size: 26px;
+    font-weight: 600;
+}
+
+.cart-close {
+    background: transparent;
+    border: none;
+    color: #cfcfcf;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+/* items list */
+.cart-items {
+    flex: 1;
+    overflow-y: auto;
+    margin-bottom: 24px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.cart-item-info {
+    max-width: 65%;
+}
+
+.cart-item-name {
+    font-weight: 600;
+    margin-bottom: 2px;
+}
+
+.cart-item-desc {
+    font-size: 13px;
+    color: #c0c6cc;
+}
+
+/* quantity controls */
+.cart-qty {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.cart-qty button {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: none;
+    background: #3a434b;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+/* summary section */
+.cart-summary {
+    font-size: 14px;
+    color: #d3d7dc;
+    margin-bottom: 18px;
+}
+
+.cart-line {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 4px;
+}
+
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 8px;
+}
+
+/* checkout button */
+.checkout-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 8px;
+    border: none;
+    background: #ff4b4b;
+    color: white;
+    font-weight: 700;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: auto;
+}
