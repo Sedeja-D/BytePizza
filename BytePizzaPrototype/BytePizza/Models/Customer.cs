@@ -1,4 +1,4 @@
-﻿///Customer Entity model
+﻿///Customer Entity model. Details the structure of customer data.
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

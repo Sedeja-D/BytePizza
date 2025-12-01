@@ -1,4 +1,5 @@
-﻿using System;
+﻿///Details what the services need to do but not how it needs to be done.
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
