@@ -8,16 +8,6 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
     color: aliceblue;
 }
-/*
-body {
-    background-image: url('/Images/LandingPage.png');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-color: #1E1E1E
-}
-*/
 h1:focus {
     outline: none;
 }
