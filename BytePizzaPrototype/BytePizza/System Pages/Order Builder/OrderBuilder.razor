@@ -1,0 +1,304 @@
+@page "/builder"
+
+<div class="builder-page">
+
+    <!-- TOP NAV -->
+    <div class="landing-nav-buttons">
+        <button class="landing-btn" @onclick="ViewMenu">View Menu</button>
+        <button class="landing-btn" @onclick="GoToDelivery">Order Delivery</button>
+        <button class="landing-btn" @onclick="GoToPickup">Order Pickup</button>
+    </div>
+
+    <div class="landing-icons">
+        <button class="icon-plain" @onclick="GoToProfile">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 12c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"
+                      fill="none" stroke="white" stroke-width="1.6" />
+            </svg>
+        </button>
+
+        <button class="icon-plain" @onclick="OpenCart">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M3 4h2l2 12h11l2-8H8"
+                      fill="none" stroke="white" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="10" cy="19" r="1.4" fill="white" />
+                <circle cx="17" cy="19" r="1.4" fill="white" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div class="builder-content">
+
+        <!-- LEFT PANEL: BUILD YOUR PIZZA -->
+        <div class="builder-panel">
+            <h2 class="builder-title">Build Your Pizza</h2>
+
+            <div class="builder-pizza-layout">
+                <div class="pizza-image">
+                    <img src="/Images/Pizza.png" alt="Pizza" />
+                </div>
+
+                <div class="pizza-options">
+                    <div class="pizza-section">
+                        <h3 class="section-title">Pizza Size :</h3>
+                        <div class="option-list">
+                            <label>
+                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Byte")' />
+                                Byte Sized (10”) – personal
+                            </label>
+                            <label>
+                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Kilo")' />
+                                KiloByte (12”) – medium
+                            </label>
+                            <label>
+                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Mega")' />
+                                MegaByte (14”) – large
+                            </label>
+                            <label>
+                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Giga")' />
+                                GigaByte (16”) – extra large
+                            </label>
+                            <label>
+                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Tera")' />
+                                TeraByte (18”) – party size
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="pizza-section">
+                        <h3 class="section-title">Crust Type :</h3>
+                        <div class="option-row">
+                            <label>
+                                <input type="radio" name="pizza-crust" @onchange='@(() => SelectedCrust = "Thin")' />
+                                Thin Crust
+                            </label>
+                            <label>
+                                <input type="radio" name="pizza-crust" @onchange='@(() => SelectedCrust = "HandTossed")' />
+                                Hand-Tossed
+                            </label>
+                            <label>
+                                <input type="radio" name="pizza-crust" @onchange='@(() => SelectedCrust = "DeepDish")' />
+                                Deep Dish
+                            </label>
+                        </div>
+                    </div>
+
+
+                    <div class="pizza-section">
+                        <h3 class="section-title">Choose up to 4 Toppings :</h3>
+                        <div class="toppings-grid">
+                            <label><input type="checkbox" @bind="ToppingProvolone" /> Provolone</label>
+                            <label><input type="checkbox" @bind="ToppingMozzarella" /> Mozzarella</label>
+                            <label><input type="checkbox" @bind="ToppingParmesan" /> Parmesan Blend</label>
+                            <label><input type="checkbox" @bind="ToppingPepperoni" /> Pepperoni</label>
+
+                            <label><input type="checkbox" @bind="ToppingBacon" /> Bacon</label>
+                            <label><input type="checkbox" @bind="ToppingSteak" /> Steak</label>
+                            <label><input type="checkbox" @bind="ToppingChicken" /> Chicken</label>
+                            <label><input type="checkbox" @bind="ToppingBananaPeppers" /> Banana Peppers</label>
+
+                            <label><input type="checkbox" @bind="ToppingSausage" /> Sausage</label>
+                            <label><input type="checkbox" @bind="ToppingOnions" /> Onions</label>
+                            <label><input type="checkbox" @bind="ToppingMushrooms" /> Mushrooms</label>
+                            <label><input type="checkbox" @bind="ToppingBlackOlives" /> Black Olives</label>
+
+                            <label><input type="checkbox" @bind="ToppingSpinach" /> Spinach</label>
+                            <label><input type="checkbox" @bind="ToppingPineapple" /> Pineapple</label>
+                        </div>
+                        <p class="topping-note">(*Toppings pricing for now is simple: each one adds a small amount.)</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pizza quantity + Add to cart -->
+            <div class="builder-footer-row">
+                <div class="quantity-controls">
+                    <button class="qty-btn" @onclick="DecreasePizzaQty">−</button>
+                    <span class="qty-value">@PizzaQuantity</span>
+                    <button class="qty-btn" @onclick="IncreasePizzaQty">+</button>
+                </div>
+                <div class="panel-total">
+                    Pizza Total : <span class="money">@PizzaTotal.ToString("C")</span>
+                </div>
+                <button class="panel-cta" @onclick="AddPizzaToCart">ADD TO CART</button>
+            </div>
+        </div>
+
+        <!-- RIGHT PANEL: DRINKS & SIDES -->
+        <div class="builder-panel">
+            <h2 class="builder-title">Add Drinks &amp; Sides</h2>
+
+            <div class="drinks-sides-section">
+                <h3 class="section-title">Drinks</h3>
+
+                @foreach (var item in DrinkItems)
+                {
+                    <div class="line-item">
+                        <span>@item.Name</span>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" @onclick="() => DecreaseItem(item)">−</button>
+                            <span class="qty-value">@item.Quantity</span>
+                            <button class="qty-btn" @onclick="() => IncreaseItem(item)">+</button>
+                        </div>
+                    </div>
+                }
+
+                <h3 class="section-title section-sides">Sides</h3>
+
+                @foreach (var item in SideItems)
+                {
+                    <div class="line-item">
+                        <span>@item.Name</span>
+                        <div class="quantity-controls">
+                            <button class="qty-btn" @onclick="() => DecreaseItem(item)">−</button>
+                            <span class="qty-value">@item.Quantity</span>
+                            <button class="qty-btn" @onclick="() => IncreaseItem(item)">+</button>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <div class="builder-footer-row builder-footer-right">
+                <div class="panel-total">
+                    Order Total : <span class="money">@OrderTotal.ToString("C")</span>
+                </div>
+                <button class="panel-cta" @onclick="OpenCart">VIEW CART</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- CART SLIDE-OUT -->
+    @if (ShowCart)
+    {
+        <div class="cart-overlay">
+            <div class="cart-panel">
+                <div class="cart-header">
+                    <span class="cart-title">Your Order</span>
+                    <button class="cart-close" @onclick="CloseCart">Close</button>
+                </div>
+
+                <div class="cart-items">
+                    <!-- For now, just show totals. Later you can list actual items. -->
+                    <p>Pizza Total: @PizzaTotal.ToString("C")</p>
+                    <p>Drinks &amp; Sides: @SideTotal.ToString("C")</p>
+                </div>
+
+                <div class="cart-summary">
+                    <div class="cart-line">
+                        <span>Subtotal</span>
+                        <span>@OrderTotal.ToString("C")</span>
+                    </div>
+                    <hr />
+                    <div class="cart-total">
+                        <span>Total</span>
+                        <span>@OrderTotal.ToString("C")</span>
+                    </div>
+                </div>
+
+                <button class="checkout-btn">CHECK OUT</button>
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+    [Inject] NavigationManager Nav { get; set; }
+
+    // NAVIGATION
+    void ViewMenu() => Nav.NavigateTo("/menu");
+    void GoToDelivery() => Nav.NavigateTo("/builder"); // same page, could later set mode=delivery
+    void GoToPickup() => Nav.NavigateTo("/builder");   // same page, could later set mode=pickup
+    void GoToProfile() => Nav.NavigateTo("/profile");
+
+    // CART
+    bool ShowCart = false;
+    void OpenCart() => ShowCart = true;
+    void CloseCart() => ShowCart = false;
+
+    // ---------- PIZZA TOP ----------
+    string SelectedSize { get; set; } = "Mega"; // default
+    string SelectedCrust { get; set; } = "Thin";
+
+    // toppings
+    bool ToppingProvolone, ToppingMozzarella, ToppingParmesan, ToppingPepperoni;
+    bool ToppingBacon, ToppingSteak, ToppingChicken, ToppingBananaPeppers;
+    bool ToppingSausage, ToppingOnions, ToppingMushrooms, ToppingBlackOlives;
+    bool ToppingSpinach, ToppingPineapple;
+
+    int PizzaQuantity { get; set; } = 1;
+
+    decimal GetBasePrice() => SelectedSize switch
+    {
+        "Byte" => 9.99m,
+        "Kilo" => 12.99m,
+        "Mega" => 14.99m,
+        "Giga" => 16.99m,
+        "Tera" => 19.99m,
+        _ => 14.99m
+    };
+
+    int GetToppingCount()
+    {
+        var list = new[]
+        {
+            ToppingProvolone, ToppingMozzarella, ToppingParmesan, ToppingPepperoni,
+            ToppingBacon, ToppingSteak, ToppingChicken, ToppingBananaPeppers,
+            ToppingSausage, ToppingOnions, ToppingMushrooms, ToppingBlackOlives,
+            ToppingSpinach, ToppingPineapple
+        };
+        return list.Count(t => t);
+    }
+
+    decimal PizzaTotal => PizzaQuantity * (GetBasePrice() + GetToppingCount() * 1.00m);
+
+    void IncreasePizzaQty() => PizzaQuantity++;
+    void DecreasePizzaQty()
+    {
+        if (PizzaQuantity > 1) PizzaQuantity--;
+    }
+
+    void AddPizzaToCart()
+    {
+        // later this can add to a shared cart service
+        OpenCart();
+    }
+
+    // ---------- DRINKS & SIDES ----------
+    class OrderItem
+    {
+        public string Name { get; set; } = "";
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
+    }
+
+    List<OrderItem> DrinkItems = new()
+    {
+        new OrderItem { Name = "Fountain Sodas", Price = 2.49m },
+        new OrderItem { Name = "Sparkling Water", Price = 2.99m },
+        new OrderItem { Name = "Iced Tea", Price = 2.79m },
+        new OrderItem { Name = "Lemonade", Price = 2.79m }
+    };
+
+    List<OrderItem> SideItems = new()
+    {
+        new OrderItem { Name = "Garlic Breadsticks", Price = 5.99m },
+        new OrderItem { Name = "Cheesy Bread", Price = 6.49m },
+        new OrderItem { Name = "Side Salad", Price = 4.99m },
+        new OrderItem { Name = "Wings (8)", Price = 9.99m }
+    };
+
+    void IncreaseItem(OrderItem item) => item.Quantity++;
+    void DecreaseItem(OrderItem item)
+    {
+        if (item.Quantity > 0) item.Quantity--;
+    }
+
+    decimal SideTotal => DrinkItems.Sum(i => i.Price * i.Quantity)
+                         + SideItems.Sum(i => i.Price * i.Quantity);
+
+    decimal OrderTotal => PizzaTotal + SideTotal;
+}

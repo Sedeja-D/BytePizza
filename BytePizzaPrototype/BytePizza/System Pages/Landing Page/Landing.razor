@@ -2,12 +2,16 @@
 
 <div class="landing-page">
 
-        <!-- Main nav buttons -->
-        
-        <div class="landing-nav-buttons">
-        <button class="landing-btn" @onclick="ViewMenu">View Menu</button>
-        <button class="landing-btn" @onclick="OpenLogin">Order Delivery</button>
-        <button class="landing-btn" @onclick="OpenLogin">Order Pickup</button>
+    <!-- Main nav buttons -->
+    <div class="landing-nav-buttons">
+        <button class="landing-btn" @onclick="StartViewMenu">View Menu</button>
+        <button class="landing-btn" @onclick="StartDelivery">Order Delivery</button>
+        <button class="landing-btn" @onclick="StartPickup">Order Pickup</button>
+    </div>
+
+    <!-- Big ORDER NOW button -->
+    <div class="landing-main-cta">
+        <button class="landing-cta-btn" @onclick="StartPickup">ORDER NOW</button>
     </div>
 
     <!-- Nav icons -->
@@ -16,7 +20,7 @@
         <button class="icon-plain" @onclick="GoToProfile">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M12 12c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"
-                    fill="none" stroke="white" stroke-width="1.6" />
+                      fill="none" stroke="white" stroke-width="1.6" />
             </svg>
         </button>
 
@@ -24,21 +28,18 @@
         <button class="icon-plain" @onclick="OpenCart">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M3 4h2l2 12h11l2-8H8" 
-                    fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+                      fill="none" stroke="white" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
                 <circle cx="10" cy="19" r="1.4" fill="white" />
                 <circle cx="17" cy="19" r="1.4" fill="white" />
             </svg>
         </button>
     </div>
 
-    <!-- ORDER NOW -->
-    <div class="landing-main-cta">
-        <button class="landing-cta-btn" @onclick="OpenLogin">ORDER NOW</button>
-    </div>
+    <!--rest of the login / signup / forgot / delivery eligibility / cart blocks-->
 
         <!-- LOGIN POPUP -->
-    @if (ShowLogin)
-    {
+        @if (ShowLogin)
+        {
         <div class="login-overlay">
             <div class="login-box">
 
@@ -72,16 +73,143 @@
                     <input type="password" @bind="Password" placeholder="Password" />
                 </div>
 
-                <p class="forgot">Forgot Password</p>
+                <p class="forgot">
+                    <button class="link-button" @onclick="OpenForgot">Forgot Password</button>
+                </p>
 
                 <button class="login-btn" @onclick="SubmitLogin">LOGIN</button>
 
                 <p class="signup-text">
-                    Not a member? <span class="signup-link">Sign up now</span>
+                    Not a member?
+                    <button class="link-button signup-link" @onclick="OpenSignup">Sign up now</button>
                 </p>
+
             </div>
         </div>
     }
+
+    @if (ShowSignup)
+    {
+        <div class="login-overlay">
+            <div class="login-box">
+
+            <!-- Close -->
+            <button class="close-btn" @onclick="CloseSignup">✕</button>
+
+            <h1 class="login-title">Sign up</h1>
+
+            <div class="input-group">
+                <input @bind="SignupName" placeholder="Full Name" />
+            </div>
+
+            <div class="input-group">
+                <input @bind="SignupPhone" placeholder="Phone Number" />
+            </div>
+
+            <div class="input-group">
+                <input @bind="SignupAddress" placeholder="Address" />
+            </div>
+
+            <div class="input-group">
+                <input type="password" @bind="SignupPassword" placeholder="Password" />
+            </div>
+
+            <button class="login-btn" @onclick="SubmitSignup">SIGN UP</button>
+
+            <button class="back-link" @onclick="BackToLoginFromSignup">
+                ← Go Back
+            </button>
+        </div>
+    </div>
+    }
+
+    @if (ShowForgot)
+    {
+        <div class="login-overlay">
+            <div class="login-box">
+
+            <!-- Close -->
+            <button class="close-btn" @onclick="CloseForgot">✕</button>
+
+            <h1 class="login-title">Forgot Password</h1>
+
+            <p class="helper-text">
+                Enter your phone number to reset your password.
+            </p>
+
+            @if (ShowForgotError)
+            {
+                <div class="error-text">Invalid phone number</div>
+            }
+
+            <div class="input-group">
+                <input @bind="ForgotPhone" placeholder="Phone Number" />
+            </div>
+
+            <button class="login-btn" @onclick="SendResetLink">
+                SEND VERIFICATION LINK
+            </button>
+
+            <button class="back-link" @onclick="BackToLoginFromForgot">
+                ← Go Back
+            </button>
+        </div>
+    </div>
+    }
+
+    @if (ShowDeliveryEligibility)
+    {
+        <div class="login-overlay">
+            <div class="login-box">
+
+            <button class="close-btn" @onclick="CloseDeliveryEligibility">✕</button>
+
+            <h1 class="login-title">Delivery Eligibility</h1>
+
+            @if (IsOutsideDeliveryArea)
+            {
+                <div class="error-text">
+                    Unfortunately, you're outside our delivery area
+                </div>
+            }
+            else if (HasCheckedDeliveryArea)
+            {
+                <p class="helper-text">
+                    You're eligible for delivery to this address.
+                </p>
+            }
+
+            <div class="input-group">
+                <button class="location-btn" @onclick="CheckDeliveryArea">
+                    Use Current Location
+                </button>
+            </div>
+
+            <div class="input-group">
+                <input @bind="DeliveryNotes" placeholder="Delivery Notes (Optional)" />
+            </div>
+
+            @if (IsOutsideDeliveryArea)
+            {
+                <button class="login-btn" @onclick="GoToPickupFromEligibility">
+                    ORDER FOR PICKUP
+                </button>
+            }
+            else
+            {
+                <button class="login-btn" @onclick="ContinueDelivery">
+                    CONTINUE WITH DELIVERY
+                </button>
+            }
+
+            <button class="back-link" @onclick="BackToLoginFromEligibility">
+                ← Go Back
+            </button>
+        </div>
+    </div>
+    }
+
+
 
     @if (ShowCart)
     {
@@ -144,35 +272,162 @@
 @code {
     [Inject] NavigationManager Nav { get; set; }
 
+    // ---------------- NAV INTENT ----------------
+    // What the user clicked before login ("delivery" or "pickup")
+    string NextAction = "";
+
+    // ---------------- LOGIN ----------------
     bool ShowLogin = false;
     bool ShowError = false;
-
     string Phone = "";
     string Password = "";
 
     void OpenLogin() => ShowLogin = true;
     void CloseLogin() => ShowLogin = false;
 
-    void ViewMenu() => Nav.NavigateTo("/menu");
+    // Called by the buttons in the nav / ORDER NOW
+    void StartViewMenu() => Nav.NavigateTo("/menu");
+
+    void StartDelivery()
+    {
+        NextAction = "delivery";
+        ShowLogin = true;
+    }
+
+    void StartPickup()
+    {
+        NextAction = "pickup";
+        ShowLogin = true;
+    }
 
     void SubmitLogin()
     {
-        if (Phone == "" || Password == "")
+        if (string.IsNullOrWhiteSpace(Phone) || string.IsNullOrWhiteSpace(Password))
         {
             ShowError = true;
             return;
         }
 
-        // Redirect after successful login
-        Nav.NavigateTo("/home"); 
+        ShowError = false;
+        ShowLogin = false;
+
+        if (NextAction == "delivery")
+        {
+            // Only delivery shows the eligibility popup
+            ShowDeliveryEligibility = true;
+        }
+        else if (NextAction == "pickup")
+        {
+            // Pickup goes straight to order builder
+            Nav.NavigateTo("/builder?mode=pickup");
+        }
+        else
+        {
+            // Fallback if something else triggered login
+            Nav.NavigateTo("/home");
+        }
     }
 
-        void GoToProfile() => Nav.NavigateTo("/profile");
+    // ---------------- PROFILE / CART ----------------
+    void GoToProfile() => Nav.NavigateTo("/profile");
+
     bool ShowCart = false;
-
     void OpenCart() => ShowCart = true;
-
     void CloseCart() => ShowCart = false;
 
+    // ---------------- SIGNUP & FORGOT PASSWORD ----------------
+    bool ShowSignup = false;
+    bool ShowForgot = false;
 
+    string SignupName = "";
+    string SignupPhone = "";
+    string SignupAddress = "";
+    string SignupPassword = "";
+
+    string ForgotPhone = "";
+    bool ShowForgotError = false;
+
+    void OpenSignup()
+    {
+        ShowLogin = false;
+        ShowForgot = false;
+        ShowSignup = true;
+    }
+
+    void CloseSignup() => ShowSignup = false;
+
+    void BackToLoginFromSignup()
+    {
+        ShowSignup = false;
+        ShowLogin = true;
+    }
+
+    void OpenForgot()
+    {
+        ShowLogin = false;
+        ShowSignup = false;
+        ShowForgot = true;
+    }
+
+    void CloseForgot() => ShowForgot = false;
+
+    void BackToLoginFromForgot()
+    {
+        ShowForgot = false;
+        ShowLogin = true;
+    }
+
+    void SubmitSignup()
+    {
+        // TODO: later you can add real validation + backend call
+        ShowSignup = false;
+        ShowLogin = true;
+    }
+
+    void SendResetLink()
+    {
+        if (string.IsNullOrWhiteSpace(ForgotPhone))
+        {
+            ShowForgotError = true;
+            return;
+        }
+
+        ShowForgotError = false;
+        // TODO: send reset link later
+    }
+    
+
+    // ---------------- DELIVERY ELIGIBILITY ----------------
+    bool ShowDeliveryEligibility = false;
+    bool IsOutsideDeliveryArea = true;   // fake for now – you can change this later
+    bool HasCheckedDeliveryArea = false;
+    string DeliveryNotes = "";
+
+    void CloseDeliveryEligibility() => ShowDeliveryEligibility = false;
+
+    // For now, pretend that after clicking "Use Current Location"
+    // they ARE inside the delivery area so you can demo both states
+    void CheckDeliveryArea()
+    {
+        HasCheckedDeliveryArea = true;
+        IsOutsideDeliveryArea = false; // flip to inside area
+    }
+
+    void GoToPickupFromEligibility()
+    {
+        ShowDeliveryEligibility = false;
+        Nav.NavigateTo("/builder?mode=pickup");
+    }
+
+    void ContinueDelivery()
+    {
+        ShowDeliveryEligibility = false;
+        Nav.NavigateTo("/builder?mode=delivery");
+    }
+
+    void BackToLoginFromEligibility()
+    {
+        ShowDeliveryEligibility = false;
+        ShowLogin = true;
+    }
 }
