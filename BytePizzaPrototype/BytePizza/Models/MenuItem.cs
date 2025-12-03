@@ -1,13 +1,27 @@
-﻿///Menu item Entity model. Details the structure of available menu items data
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace BytePizza.Models
 {
-    internal class MenuItem
+    ///<summary>
+    ///Stores catalog of the restaurant menu items  
+    ///</summary>
+    public class MenuItem
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int MenuItemId { get; set; }
+
+        [Required]
+        [StringLength(15)]
+        public string Name { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(15)]
+        public string Category { get; set; } =  string.Empty;
+
+        [Required]
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal MenuItemPrice { get; set; }
     }
 }

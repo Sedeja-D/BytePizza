@@ -1,12 +1,31 @@
-﻿///Customer Entity model. Details the structure of customer data.
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
-namespace BytePizza.Models
+namespace BytePizza.Models 
 {
-    internal class Customer
+    ///<summary>
+    ///Represents customer account and authorization
+    ///</summary>
+    public class Customer
     {
+        [Key]
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        public int CustomerId { get; set; }
+
+        [Required]
+        [StringLength(10)]
+        public string Phone { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(15)]
+        public string Password { get; set; } = string.Empty;
+
+        [Required]
+        [StringLength(50)] 
+        public string Name { get; set; } = String.Empty;
+
+        [StringLength(200)]
+        public string? Address { get; set; }
+
     }
 }
