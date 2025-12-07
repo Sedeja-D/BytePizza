@@ -29,7 +29,7 @@ namespace BytePizza.Models
 
         [Required]
         [StringLength(20)]
-        public string? Toppings { get; set; } = string.Empty;
+        public string Toppings { get; set; } = string.Empty;
 
         [Required]
         [Column(TypeName = "decimal(10,2)")]
@@ -40,11 +40,5 @@ namespace BytePizza.Models
         ///</summary>
         [ForeignKey("OrderId")]
         public virtual Order? Order { get; set; }
-
-
-
-
-
-
     }
 }
