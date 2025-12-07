@@ -19,9 +19,7 @@ namespace BytePizza
         public MainWindow()
         {
             InitializeComponent();
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddWpfBlazorWebView();
-            Resources.Add("services", serviceCollection.BuildServiceProvider());
+            Resources.Add("services", App.ServiceProvider);
         }
     }
 }
