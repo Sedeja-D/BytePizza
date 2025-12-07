@@ -5,7 +5,7 @@ using BytePizza.Data;
 using BytePizza.Services.Interfaces;
 using System.Diagnostics.Eventing.Reader;
 
-namespace BytePizza.Services.Implementions
+namespace BytePizza.Services.Implementations
 {
     public class CustomerService : ICustomerService
     {

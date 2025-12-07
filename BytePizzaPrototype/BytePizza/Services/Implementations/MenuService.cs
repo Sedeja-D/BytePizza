@@ -11,9 +11,9 @@ using System.Threading.Tasks;
 using System.Windows.Controls.Ribbon.Primitives;
 using Microsoft.EntityFrameworkCore;
 
-namespace BytePizza.Services.Implementions
+namespace BytePizza.Services.Implementations
 {
-    internal class MenuService : IMenuService
+    public class MenuService : IMenuService
     {
         private readonly ApplicationDBContext _context;
 
@@ -28,7 +28,7 @@ namespace BytePizza.Services.Implementions
             var toppings = await _context.MenuItems.Where(m => m.Category == "Topping" ).Select(m => new {m.Name, m.MenuItemPrice }).ToListAsync();
 
             //convert to list of tuples. Each tuple being (name, price)
-            return toppings.Select(t => (Name: t.Name, Price: t.MenuItemPrice)).ToList();
+            return toppings.Select(t => (t.Name, Price: t.MenuItemPrice)).ToList();
         }
 
         public async Task<List<(string Name, decimal Price)>> GetPizzaSizesAsync()
@@ -37,7 +37,7 @@ namespace BytePizza.Services.Implementions
             var PizzaSizes = await _context.MenuItems.Where(m => m.Category == "PizzaSize").Select(m => new { m.Name, m.MenuItemPrice }).ToListAsync();
 
             //convert to list of tuples. Each tuple being (name, price)
-            return PizzaSizes.Select(s => (Name: s.Name, Price: s.MenuItemPrice)).ToList();
+            return PizzaSizes.Select(s => (s.Name, Price: s.MenuItemPrice)).ToList();
         }
 
         public async Task<List<(string Name, decimal Price)>> GetPizzaCrustsAsync()
@@ -46,7 +46,7 @@ namespace BytePizza.Services.Implementions
             var crust = await _context.MenuItems.Where(m => m.Category == "Crust").Select(m => new { m.Name, m.MenuItemPrice }).ToListAsync();
 
             //convert to list of tuples. Each tuple being (name, price)
-            return crust.Select(c => (Name: c.Name, Price: c.MenuItemPrice)).ToList();
+            return crust.Select(c => (c.Name, Price: c.MenuItemPrice)).ToList();
         }
 
         public async Task<List<(string Name, decimal Price)>> GetDrinksAsync()
@@ -55,7 +55,7 @@ namespace BytePizza.Services.Implementions
             var drinks = await _context.MenuItems.Where(m => m.Category == "Drink").Select(m => new { m.Name, m.MenuItemPrice }).ToListAsync();
 
             //convert to list of tuples. Each tuple being (name, price)
-            return drinks.Select(d => (Name: d.Name, Price: d.MenuItemPrice)).ToList();
+            return drinks.Select(d => (d.Name, Price: d.MenuItemPrice)).ToList();
         }
 
         public async Task<List<(string Name, decimal Price)>> GetDrinkSizesAsync()
@@ -64,7 +64,7 @@ namespace BytePizza.Services.Implementions
             var DrinkSizes = await _context.MenuItems.Where(m => m.Category == "DrinkSize").Select(m => new { m.Name, m.MenuItemPrice }).ToListAsync();
 
             //convert to list of tuples. Each tuple being (name, price)
-            return DrinkSizes.Select(s => (Name: s.Name, Price: s.MenuItemPrice)).ToList();
+            return DrinkSizes.Select(s => (s.Name, Price: s.MenuItemPrice)).ToList();
         }
     }
 }
