@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using BytePizza.Services.Implementions;
+using BytePizza.Services.Implementations;
 
 namespace BytePizza.Models 
 {

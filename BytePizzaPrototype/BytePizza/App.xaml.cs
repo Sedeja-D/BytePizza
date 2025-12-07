@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
 using BytePizza.Data;
 using BytePizza.Services.Interfaces;
-using BytePizza.Services.Implementions;
+using BytePizza.Services.Implementations;
 using System.Configuration;
 using System.IO;
 using System.Windows;
