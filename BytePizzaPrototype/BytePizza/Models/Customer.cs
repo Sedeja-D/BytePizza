@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using BytePizza.Services.Implementions;
 
 namespace BytePizza.Models 
 {
@@ -27,5 +28,6 @@ namespace BytePizza.Models
         [StringLength(200)]
         public string? Address { get; set; }
 
+        public virtual ICollection<Order> Order { get; set; } = new List<Order>();
     }
 }
