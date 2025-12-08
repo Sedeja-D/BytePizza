@@ -173,6 +173,11 @@
                     <button class="cart-close" @onclick="CloseCart">Close</button>
                 </div>
 
+                @if (ShowCheckoutError)
+                {
+                    <div class="error-text">Error. You are not signed in.</div>
+                }
+
                 <div class="cart-items">
                     @if (!CartItems.Any())
                     {
@@ -347,6 +352,7 @@
 
     bool ShowCart = false;
     bool ShowProfile = false;
+    bool ShowCheckoutError = false;
 
     class CartItem
     {
@@ -358,7 +364,11 @@
     List<CartItem> CartItems = new();  // empty by default
 
     void OpenCart() => ShowCart = true;
-    void CloseCart() => ShowCart = false;
+    void CloseCart()
+    {
+        ShowCheckoutError = false;
+        ShowCart = false;
+    }
 
     Customer? CurrentCustomer;
     async Task OpenProfile()
@@ -376,7 +386,20 @@
         else CartItems.Remove(item);
     }
 
-    void GoToCheckout() => Nav.NavigateTo("/checkout");
+    async Task GoToCheckout()
+    {
+        var CurrentCustomer = await CustomerService.GetCustomerAsync();
+
+        if (CurrentCustomer != null)
+            {
+            ShowCheckoutError = false;
+            Nav.NavigateTo("/checkout");
+            }
+        else
+        {
+            ShowCheckoutError = true;
+        }
+    }
 
     // -----------SIGN UP-----------
     bool ShowSignup = false;
