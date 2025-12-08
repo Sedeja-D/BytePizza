@@ -28,12 +28,12 @@ namespace BytePizza.Services.Implementations
                 return null;
             }
 
-            
+
             else
             {
                 //wait for DB response and return ID
                 return await _context.Customers.FirstOrDefaultAsync(c => c.CustomerId == CustomerID.Value);
-            }  
+            }
         }
 
         //Auth customer login with PN + PW; stores CustomerID on success.
@@ -56,6 +56,51 @@ namespace BytePizza.Services.Implementations
 
             //logged in; set CustomerID in memory
             CustomerID = customer.CustomerId;
+            return true;
+        }
+
+        //Sign-up
+        public async Task<bool> SignUpAsync(string name, string phone, string address, string password)
+        {
+            //check that fields are filled and PN is 10 digits
+            if (string.IsNullOrEmpty(name))
+            {
+                return false;
+            }
+            if (string.IsNullOrEmpty(phone) || phone.Length != 10)
+            {
+                return false;
+            }
+            if (string.IsNullOrEmpty(address))
+            {
+                return false;
+            }
+            if (string.IsNullOrEmpty(password))
+            {
+                return false;
+            }
+
+            //existing if phone number already in DB
+            var existing = await _context.Customers.FirstOrDefaultAsync(c => c.Phone == phone);
+
+            if (existing != null)
+            {
+                return false;
+            }
+
+            //checks passed, create customer
+            var newCustomer = new Customer
+            {
+                Name = name,
+                Phone = phone,
+                Address = address,
+                Password = password
+            };
+
+            //add customer to DB
+            _context.Customers.Add(newCustomer);
+            await _context.SaveChangesAsync();
+
             return true;
         }
 
