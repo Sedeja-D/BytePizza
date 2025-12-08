@@ -1,0 +1,68 @@
+@page "/menu"
+
+<div class="menu-page">
+
+    <!-- HOME BUTTON -->
+    <button class="home-hit-area" @onclick="GoHome"></button>
+
+    <!-- TOP NAV BUTTONS -->
+    <div class="landing-nav-buttons">
+        <button class="landing-btn" @onclick="GoToMenu">View Menu</button>
+        <button class="landing-btn" @onclick="GoToDelivery">Order Delivery</button>
+        <button class="landing-btn" @onclick="GoToPickup">Order Pickup</button>
+    </div>
+
+    <!-- ICONS (PROFILE + CART) -->
+    <div class="landing-icons">
+        <button class="icon-plain" @onclick="GoToProfile">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M12 12c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"
+                      fill="none" stroke="white" stroke-width="1.6" />
+            </svg>
+        </button>
+
+        <button class="icon-plain" @onclick="OpenCart">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path d="M3 4h2l2 12h11l2-8H8"
+                      fill="none" stroke="white" stroke-width="1.6"
+                      stroke-linecap="round" stroke-linejoin="round" />
+                <circle cx="10" cy="19" r="1.4" fill="white" />
+                <circle cx="17" cy="19" r="1.4" fill="white" />
+            </svg>
+        </button>
+    </div>
+
+    <!-- CART OVERLAY (from global CSS) -->
+    @if (ShowCart)
+    {
+        <div class="cart-overlay">
+            <div class="cart-panel">
+                <div class="cart-header">
+                    <span class="cart-title">Your Order</span>
+                    <button class="cart-close" @onclick="CloseCart">Close</button>
+                </div>
+
+                <div class="cart-items">
+                    <p>Your cart is empty.</p>
+                </div>
+
+                <button class="checkout-btn">CHECK OUT</button>
+            </div>
+        </div>
+    }
+
+</div>
+
+@code {
+    [Inject] NavigationManager Nav { get; set; }
+
+    void GoHome() => Nav.NavigateTo("/");
+    void GoToMenu() => Nav.NavigateTo("/menu");
+    void GoToDelivery() => Nav.NavigateTo("/builder?mode=delivery");
+    void GoToPickup() => Nav.NavigateTo("/builder?mode=pickup");
+    void GoToProfile() => Nav.NavigateTo("/profile");
+
+    bool ShowCart = false;
+    void OpenCart() => ShowCart = true;
+    void CloseCart() => ShowCart = false;
+}

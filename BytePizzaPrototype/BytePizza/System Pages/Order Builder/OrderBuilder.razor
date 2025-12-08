@@ -2,6 +2,9 @@
 
 <div class="builder-page">
 
+    <!-- HOME BUTTON HIT AREA -->
+    <button class="home-hit-area" @onclick="GoHome"></button>
+
     <!-- TOP NAV -->
     <div class="landing-nav-buttons">
         <button class="landing-btn" @onclick="ViewMenu">View Menu</button>
@@ -85,6 +88,23 @@
                         </div>
                     </div>
 
+                    <div class="pizza-section">
+                        <h3 class="section-title">Pizza Sauce :</h3>
+                        <div class="option-row">
+                            <label>
+                                <input type="radio" name="pizza-sauce" @onchange='@(() => SelectedSauce = "Marinara")' />
+                                Marinara
+                            </label>
+                            <label>
+                                <input type="radio" name="pizza-sauce" @onchange='@(() => SelectedSauce = "BBQ")' />
+                                BBQ
+                            </label>
+                            <label>
+                                <input type="radio" name="pizza-sauce" @onchange='@(() => SelectedSauce = "Pesto")' />
+                                Pesto
+                            </label>
+                        </div>
+                    </div>
 
                     <div class="pizza-section">
                         <h3 class="section-title">Choose up to 4 Toppings :</h3>
@@ -136,11 +156,19 @@
                 @foreach (var item in DrinkItems)
                 {
                     <div class="line-item">
-                        <span>@item.Name</span>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" @onclick="() => DecreaseItem(item)">−</button>
-                            <span class="qty-value">@item.Quantity</span>
-                            <button class="qty-btn" @onclick="() => IncreaseItem(item)">+</button>
+                        <span class="item-name">@item.Name</span>
+                        <div class="item-controls">
+                            <select class="drink-size" @bind="item.Size">
+                                <option value="Small">Small</option>
+                                <option value="Medium">Medium</option>
+                                <option value="Large">Large</option>
+                            </select>
+
+                            <div class="quantity-controls">
+                                <button class="qty-btn" @onclick="() => DecreaseItem(item)">−</button>
+                                <span class="qty-value">@item.Quantity</span>
+                                <button class="qty-btn" @onclick="() => IncreaseItem(item)">+</button>
+                            </div>
                         </div>
                     </div>
                 }
@@ -150,11 +178,13 @@
                 @foreach (var item in SideItems)
                 {
                     <div class="line-item">
-                        <span>@item.Name</span>
-                        <div class="quantity-controls">
-                            <button class="qty-btn" @onclick="() => DecreaseItem(item)">−</button>
-                            <span class="qty-value">@item.Quantity</span>
-                            <button class="qty-btn" @onclick="() => IncreaseItem(item)">+</button>
+                        <span class="item-name">@item.Name</span>
+                        <div class="item-controls">
+                            <div class="quantity-controls">
+                                <button class="qty-btn" @onclick="() => DecreaseItem(item)">−</button>
+                                <span class="qty-value">@item.Quantity</span>
+                                <button class="qty-btn" @onclick="() => IncreaseItem(item)">+</button>
+                            </div>
                         </div>
                     </div>
                 }
@@ -181,24 +211,33 @@
                 </div>
 
                 <div class="cart-items">
-                    <!-- For now, just show totals. Later you can list actual items. -->
-                    <p>Pizza Total: @PizzaTotal.ToString("C")</p>
-                    <p>Drinks &amp; Sides: @SideTotal.ToString("C")</p>
+                    @if (OrderTotal == 0)
+                    {
+                        <p>Your cart is empty.</p>
+                    }
+                    else
+                    {
+                        <p>Pizza Total: @PizzaTotal.ToString("C")</p>
+                        <p>Drinks &amp; Sides: @SideTotal.ToString("C")</p>
+                    }
                 </div>
 
-                <div class="cart-summary">
-                    <div class="cart-line">
-                        <span>Subtotal</span>
-                        <span>@OrderTotal.ToString("C")</span>
+                @if (OrderTotal > 0)
+                {
+                    <div class="cart-summary">
+                        <div class="cart-line">
+                            <span>Subtotal</span>
+                            <span>@OrderTotal.ToString("C")</span>
+                        </div>
+                        <hr />
+                        <div class="cart-total">
+                            <span>Total</span>
+                            <span>@OrderTotal.ToString("C")</span>
+                        </div>
                     </div>
-                    <hr />
-                    <div class="cart-total">
-                        <span>Total</span>
-                        <span>@OrderTotal.ToString("C")</span>
-                    </div>
-                </div>
 
-                <button class="checkout-btn">CHECK OUT</button>
+                    <button class="checkout-btn">CHECK OUT</button>
+                }
             </div>
         </div>
     }
@@ -209,10 +248,11 @@
     [Inject] NavigationManager Nav { get; set; }
 
     // NAVIGATION
-    void ViewMenu() => Nav.NavigateTo("/menu");
-    void GoToDelivery() => Nav.NavigateTo("/builder"); // same page, could later set mode=delivery
-    void GoToPickup() => Nav.NavigateTo("/builder");   // same page, could later set mode=pickup
-    void GoToProfile() => Nav.NavigateTo("/profile");
+    void GoHome()       => Nav.NavigateTo("/");
+    void ViewMenu()     => Nav.NavigateTo("/menu");
+    void GoToDelivery() => Nav.NavigateTo("/builder?mode=delivery");
+    void GoToPickup()   => Nav.NavigateTo("/builder?mode=pickup");
+    void GoToProfile()  => Nav.NavigateTo("/profile");
 
     // CART
     bool ShowCart = false;
@@ -220,8 +260,9 @@
     void CloseCart() => ShowCart = false;
 
     // ---------- PIZZA TOP ----------
-    string SelectedSize { get; set; } = "Mega"; // default
+    string SelectedSize  { get; set; } = "Mega";
     string SelectedCrust { get; set; } = "Thin";
+    string SelectedSauce { get; set; } = "Marinara";
 
     // toppings
     bool ToppingProvolone, ToppingMozzarella, ToppingParmesan, ToppingPepperoni;
@@ -229,7 +270,8 @@
     bool ToppingSausage, ToppingOnions, ToppingMushrooms, ToppingBlackOlives;
     bool ToppingSpinach, ToppingPineapple;
 
-    int PizzaQuantity { get; set; } = 1;
+    // start at 0 so cart is empty initially
+    int PizzaQuantity { get; set; } = 0;
 
     decimal GetBasePrice() => SelectedSize switch
     {
@@ -258,12 +300,17 @@
     void IncreasePizzaQty() => PizzaQuantity++;
     void DecreasePizzaQty()
     {
-        if (PizzaQuantity > 1) PizzaQuantity--;
+        if (PizzaQuantity > 0) PizzaQuantity--;
     }
 
     void AddPizzaToCart()
     {
-        // later this can add to a shared cart service
+        
+        if (PizzaQuantity == 0)
+        {
+            PizzaQuantity = 1;
+        }
+
         OpenCart();
     }
 
@@ -271,25 +318,42 @@
     class OrderItem
     {
         public string Name { get; set; } = "";
-        public decimal Price { get; set; }
+        public decimal BasePrice { get; set; }
         public int Quantity { get; set; }
+        public bool HasSizes { get; set; } = false;
+        public string Size { get; set; } = "Medium";
     }
 
+    // sprite, water, lemonade, tea with sizes
     List<OrderItem> DrinkItems = new()
     {
-        new OrderItem { Name = "Fountain Sodas", Price = 2.49m },
-        new OrderItem { Name = "Sparkling Water", Price = 2.99m },
-        new OrderItem { Name = "Iced Tea", Price = 2.79m },
-        new OrderItem { Name = "Lemonade", Price = 2.79m }
+        new OrderItem { Name = "Sprite",   BasePrice = 1.99m, HasSizes = true },
+        new OrderItem { Name = "Water",    BasePrice = 1.49m, HasSizes = true },
+        new OrderItem { Name = "Lemonade", BasePrice = 1.99m, HasSizes = true },
+        new OrderItem { Name = "Tea",      BasePrice = 1.99m, HasSizes = true }
     };
 
+    // sides
     List<OrderItem> SideItems = new()
     {
-        new OrderItem { Name = "Garlic Breadsticks", Price = 5.99m },
-        new OrderItem { Name = "Cheesy Bread", Price = 6.49m },
-        new OrderItem { Name = "Side Salad", Price = 4.99m },
-        new OrderItem { Name = "Wings (8)", Price = 9.99m }
+        new OrderItem { Name = "Garlic Breadsticks", BasePrice = 5.99m },
+        new OrderItem { Name = "Cheesy Bread",       BasePrice = 6.49m },
+        new OrderItem { Name = "Side Salad",         BasePrice = 4.99m },
+        new OrderItem { Name = "Wings (8)",          BasePrice = 9.99m }
     };
+
+    decimal GetItemPrice(OrderItem item)
+    {
+        if (!item.HasSizes) return item.BasePrice;
+
+        return item.Size switch
+        {
+            "Small"  => item.BasePrice,
+            "Medium" => item.BasePrice + 0.50m,
+            "Large"  => item.BasePrice + 1.00m,
+            _        => item.BasePrice
+        };
+    }
 
     void IncreaseItem(OrderItem item) => item.Quantity++;
     void DecreaseItem(OrderItem item)
@@ -297,8 +361,10 @@
         if (item.Quantity > 0) item.Quantity--;
     }
 
-    decimal SideTotal => DrinkItems.Sum(i => i.Price * i.Quantity)
-                         + SideItems.Sum(i => i.Price * i.Quantity);
+    decimal SideTotal =>
+        DrinkItems.Sum(i => GetItemPrice(i) * i.Quantity) +
+        SideItems.Sum(i => GetItemPrice(i) * i.Quantity);
 
     decimal OrderTotal => PizzaTotal + SideTotal;
 }
+
