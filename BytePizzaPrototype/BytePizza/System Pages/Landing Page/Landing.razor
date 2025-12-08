@@ -1,4 +1,5 @@
 @page "/"
+@inject ICustomerService CustomerService
 
 <div class="landing-page">
 
@@ -172,9 +173,17 @@
         ShowLogin = true;
     }
 
-    void SubmitLogin()
+    async Task SubmitLogin()
     {
         if (string.IsNullOrWhiteSpace(Phone) || string.IsNullOrWhiteSpace(Password))
+        {
+            ShowError = true;
+            return;
+        }
+
+        bool loginSuccess = await CustomerService.LoginAsync(Phone, Password);
+
+        if (!loginSuccess)
         {
             ShowError = true;
             return;

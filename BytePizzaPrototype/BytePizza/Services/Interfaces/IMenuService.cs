@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace BytePizza.Services.Interfaces
 {
-    internal interface IMenuService
+    public interface IMenuService
     {
         ///<returns>List of tuples; (Name, Price)</returns>
         Task<List<(string Name, decimal Price)>> GetToppingsAsync();
