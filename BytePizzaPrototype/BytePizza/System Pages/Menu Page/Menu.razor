@@ -7,9 +7,7 @@
 
     <!-- TOP NAV BUTTONS -->
     <div class="landing-nav-buttons">
-        <button class="landing-btn" @onclick="GoToMenu">View Menu</button>
-        <button class="landing-btn" @onclick="GoToDelivery">Order Delivery</button>
-        <button class="landing-btn" @onclick="GoToPickup">Order Pickup</button>
+        <button class="landing-btn" @onclick="GoHome">Go to Home</button>
     </div>
 
     <!-- ICONS (PROFILE + CART) -->
@@ -58,8 +56,6 @@
 
     void GoHome() => Nav.NavigateTo("/");
     void GoToMenu() => Nav.NavigateTo("/menu");
-    void GoToDelivery() => Nav.NavigateTo("/builder?mode=delivery");
-    void GoToPickup() => Nav.NavigateTo("/builder?mode=pickup");
     void GoToProfile() => Nav.NavigateTo("/profile");
 
     bool ShowCart = false;

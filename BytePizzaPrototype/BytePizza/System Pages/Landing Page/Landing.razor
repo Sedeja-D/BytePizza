@@ -160,14 +160,30 @@
     // Called by the buttons in the nav / ORDER NOW
     void StartViewMenu() => Nav.NavigateTo("/menu");
 
-    void StartDelivery()
+    async Task StartDelivery()
     {
+        var customer = await CustomerService.GetCustomerAsync();
+
+        if (customer != null)
+            {
+                Nav.NavigateTo("/builder?mode=delivery");
+                return;
+            }
+    
         NextAction = "delivery";
         ShowLogin = true;
     }
 
-    void StartPickup()
+    async Task StartPickup()
     {
+        var customer = await CustomerService.GetCustomerAsync();
+
+        if (customer != null)
+            {
+                Nav.NavigateTo("/builder?mode=pickup");
+                return;
+            }
+    
         NextAction = "pickup";
         ShowLogin = true;
     }
