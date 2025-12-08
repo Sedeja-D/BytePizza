@@ -1,4 +1,7 @@
 @page "/builder"
+@using BytePizza.Services.Interfaces
+@using BytePizza.Models
+@using BytePizza.Services
 
 <div class="builder-page">
 
@@ -31,176 +34,165 @@
         </button>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="builder-content">
-
-        <!-- LEFT PANEL: BUILD YOUR PIZZA -->
-        <div class="builder-panel">
-            <h2 class="builder-title">Build Your Pizza</h2>
-
-            <div class="builder-pizza-layout">
-                <div class="pizza-image">
-                    <img src="/Images/Pizza.png" alt="Pizza" />
-                </div>
-
-                <div class="pizza-options">
-                    <div class="pizza-section">
-                        <h3 class="section-title">Pizza Size :</h3>
-                        <div class="option-list">
-                            <label>
-                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Byte")' />
-                                Byte Sized (10”) – personal
-                            </label>
-                            <label>
-                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Kilo")' />
-                                KiloByte (12”) – medium
-                            </label>
-                            <label>
-                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Mega")' />
-                                MegaByte (14”) – large
-                            </label>
-                            <label>
-                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Giga")' />
-                                GigaByte (16”) – extra large
-                            </label>
-                            <label>
-                                <input type="radio" name="pizza-size" @onchange='@(() => SelectedSize = "Tera")' />
-                                TeraByte (18”) – party size
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="pizza-section">
-                        <h3 class="section-title">Crust Type :</h3>
-                        <div class="option-row">
-                            <label>
-                                <input type="radio" name="pizza-crust" @onchange='@(() => SelectedCrust = "Thin")' />
-                                Thin Crust
-                            </label>
-                            <label>
-                                <input type="radio" name="pizza-crust" @onchange='@(() => SelectedCrust = "HandTossed")' />
-                                Hand-Tossed
-                            </label>
-                            <label>
-                                <input type="radio" name="pizza-crust" @onchange='@(() => SelectedCrust = "DeepDish")' />
-                                Deep Dish
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="pizza-section">
-                        <h3 class="section-title">Pizza Sauce :</h3>
-                        <div class="option-row">
-                            <label>
-                                <input type="radio" name="pizza-sauce" @onchange='@(() => SelectedSauce = "Red")' />
-                                Marinara
-                            </label>
-                            <label>
-                                <input type="radio" name="pizza-sauce" @onchange='@(() => SelectedSauce = "White")' />
-                                BBQ
-                            </label>
-                            <label>
-                                <input type="radio" name="pizza-sauce" @onchange='@(() => SelectedSauce = "Parmlic")' />
-                                Pesto
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="pizza-section">
-                        <h3 class="section-title">Choose up to 4 Toppings :</h3>
-
-                        <!-- visual indicator -->
-                        <div class="topping-counter">
-                            @SelectedToppingCount / 4 selected
-                            @if (SelectedToppingCount >= 4)
-                            {
-                                <span class="topping-warning">Max toppings reached</span>
-                            }
-                        </div>
-
-                        <div class="toppings-grid">
-                            @foreach (var topping in Toppings)
-                            {
-                                <label>
-                                    <input type="checkbox"
-                                           checked="@topping.Selected"
-                                           disabled="@(!topping.Selected && SelectedToppingCount >=4)"
-                                           @onchange="(e) => OnToppingChanged(topping, e)" />
-                                    @topping.Name
-                                </label>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pizza quantity + Add to cart -->
-            <div class="builder-footer-row">
-                <div class="quantity-controls">
-                    <button class="qty-btn" @onclick="DecreasePizzaQty">−</button>
-                    <span class="qty-value">@PizzaQuantity</span>
-                    <button class="qty-btn" @onclick="IncreasePizzaQty">+</button>
-                </div>
-                <div class="panel-total">
-                    Pizza Total : <span class="money">@PizzaTotal.ToString("C")</span>
-                </div>
-                <button class="panel-cta" @onclick="AddPizzaToCart">ADD TO CART</button>
-            </div>
+    <!-- LOADING STATE -->
+    @if (IsLoading)
+    {
+        <div style="text-align: center; padding: 60px; color: white;">
+            <p>Loading menu...</p>
         </div>
+    }
+    else
+    {
+        <!-- MAIN CONTENT -->
+        <div class="builder-content">
 
-        <!-- RIGHT PANEL: DRINKS & SIDES -->
-        <div class="builder-panel">
-            <h2 class="builder-title">Add Drinks &amp; Sides</h2>
+            <!-- LEFT PANEL: BUILD YOUR PIZZA -->
+            <div class="builder-panel">
+                <h2 class="builder-title">Build Your Pizza</h2>
 
-            <div class="drinks-sides-section">
-                <h3 class="section-title">Drinks</h3>
+                <div class="builder-pizza-layout">
+                    <div class="pizza-image">
+                        <img src="/Images/Pizza.png" alt="Pizza" />
+                    </div>
 
-                @foreach (var item in DrinkItems)
-                {
-                    <div class="line-item">
-                        <span class="item-name">@item.Name</span>
-                        <div class="item-controls">
-                            <select class="drink-size" @bind="item.Size">
-                                <option value="Small">Small</option>
-                                <option value="Medium">Medium</option>
-                                <option value="Large">Large</option>
-                            </select>
+                    <div class="pizza-options">
+                        <div class="pizza-section">
+                            <h3 class="section-title">Pizza Size :</h3>
+                            <div class="option-list">
+                                @foreach (var size in PizzaSizes)
+                                {
+                                    <label>
+                                        <input type="radio"
+                                               name="pizza-size"
+                                               checked="@(SelectedSize == size.Name)"
+                                               @onchange="@(() => SelectedSize = size.Name)" />
+                                        @size.Name - @size.Price.ToString("C")
+                                    </label>
+                                }
+                            </div>
+                        </div>
 
-                            <div class="quantity-controls">
-                                <button class="qty-btn" @onclick="() => DecreaseItem(item)">−</button>
-                                <span class="qty-value">@item.Quantity</span>
-                                <button class="qty-btn" @onclick="() => IncreaseItem(item)">+</button>
+                        <div class="pizza-section">
+                            <h3 class="section-title">Crust Type :</h3>
+                            <div class="option-row">
+                                @foreach (var crust in Crusts)
+                                {
+                                    <label>
+                                        <input type="radio"
+                                               name="pizza-crust"
+                                               checked="@(SelectedCrust == crust.Name)"
+                                               @onchange="@(() => SelectedCrust = crust.Name)" />
+                                        @crust.Name
+                                        @if (crust.Price > 0)
+                                        {
+                                            <text> (+@crust.Price.ToString("C"))</text>
+                                        }
+                                    </label>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="pizza-section">
+                            <h3 class="section-title">Pizza Sauce :</h3>
+                            <div class="option-row">
+                                @foreach (var sauce in Sauces)
+                                {
+                                    <label>
+                                        <input type="radio"
+                                               name="pizza-sauce"
+                                               checked="@(SelectedSauce == sauce.Name)"
+                                               @onchange="@(() => SelectedSauce = sauce.Name)" />
+                                        @sauce.Name
+                                        @if (sauce.Price > 0)
+                                        {
+                                            <text> (+@sauce.Price.ToString("C"))</text>
+                                        }
+                                    </label>
+                                }
+                            </div>
+                        </div>
+
+                        <div class="pizza-section">
+                            <h3 class="section-title">Choose up to 4 Toppings :</h3>
+
+                            <!-- visual indicator -->
+                            <div class="topping-counter">
+                                @SelectedToppingCount / 4 selected
+                                @if (SelectedToppingCount >= 4)
+                                {
+                                    <span class="topping-warning">Max toppings reached</span>
+                                }
+                            </div>
+
+                            <div class="toppings-grid">
+                                @foreach (var topping in Toppings)
+                                {
+                                    <label>
+                                        <input type="checkbox"
+                                               checked="@topping.Selected"
+                                               disabled="@(!topping.Selected && SelectedToppingCount >= 4)"
+                                               @onchange="(e) => OnToppingChanged(topping, e)" />
+                                        @topping.Name (+@topping.Price.ToString("C"))
+                                    </label>
+                                }
                             </div>
                         </div>
                     </div>
-                }
+                </div>
 
-                <h3 class="section-title section-sides">Sides</h3>
+                <!-- Pizza quantity + Add to cart -->
+                <div class="builder-footer-row">
+                    <div class="quantity-controls">
+                        <button class="qty-btn" @onclick="DecreasePizzaQty">−</button>
+                        <span class="qty-value">@PizzaQuantity</span>
+                        <button class="qty-btn" @onclick="IncreasePizzaQty">+</button>
+                    </div>
+                    <div class="panel-total">
+                        Pizza Total : <span class="money">@PizzaTotal.ToString("C")</span>
+                    </div>
+                    <button class="panel-cta" @onclick="AddPizzaToCart">ADD TO CART</button>
+                </div>
+            </div>
 
-                @foreach (var item in SideItems)
-                {
-                    <div class="line-item">
-                        <span class="item-name">@item.Name</span>
-                        <div class="item-controls">
-                            <div class="quantity-controls">
-                                <button class="qty-btn" @onclick="() => DecreaseItem(item)">−</button>
-                                <span class="qty-value">@item.Quantity</span>
-                                <button class="qty-btn" @onclick="() => IncreaseItem(item)">+</button>
+            <!-- RIGHT PANEL: DRINKS & SIDES -->
+            <div class="builder-panel">
+                <h2 class="builder-title">Add Drinks &amp; Sides</h2>
+
+                <div class="drinks-sides-section">
+                    <h3 class="section-title">Drinks</h3>
+
+                    @foreach (var drink in Drinks)
+                    {
+                        <div class="line-item">
+                            <span class="item-name">@drink.Name</span>
+                            <div class="item-controls">
+                                <select class="drink-size" @bind="drink.SelectedSize" @bind:after="StateHasChanged">
+                                    @foreach (var size in DrinkSizes)
+                                    {
+                                        <option value="@size.Name">@size.Name - @size.Price.ToString("C")</option>
+                                    }
+                                </select>
+
+                                <div class="quantity-controls">
+                                    <button class="qty-btn" @onclick="() => DecreaseItem(drink)">−</button>
+                                    <span class="qty-value">@drink.Quantity</span>
+                                    <button class="qty-btn" @onclick="() => IncreaseItem(drink)">+</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                }
-            </div>
-
-            <div class="builder-footer-row builder-footer-right">
-                <div class="panel-total">
-                    Order Total : <span class="money">@OrderTotal.ToString("C")</span>
+                    }
                 </div>
-                <button class="panel-cta" @onclick="OpenCart">VIEW CART</button>
-            </div>
-        </div>
 
-    </div>
+                <div class="builder-footer-row builder-footer-right">
+                    <div class="panel-total">
+                        Order Total : <span class="money">@OrderTotal.ToString("C")</span>
+                    </div>
+                    <button class="panel-cta" @onclick="OpenCart">VIEW CART</button>
+                </div>
+            </div>
+
+        </div>
+    }
 
     <!-- CART SLIDE-OUT -->
     @if (ShowCart)
@@ -220,7 +212,7 @@
                     else
                     {
                         <p>Pizza Total: @PizzaTotal.ToString("C")</p>
-                        <p>Drinks &amp; Sides: @SideTotal.ToString("C")</p>
+                        <p>Drinks: @DrinkTotal.ToString("C")</p>
                     }
                 </div>
 
@@ -246,69 +238,77 @@
 </div>
 
 @code {
-    [Inject] NavigationManager Nav { get; set; }
+    // injection   
+    [Inject] NavigationManager Nav { get; set; } = default!;
+    [Inject] IMenuService MenuService { get; set; } = default!;
+    [Inject] CartService CartService { get; set; } = default!;
 
-    // NAVIGATION
-    void GoHome()       => Nav.NavigateTo("/");
-    void ViewMenu()     => Nav.NavigateTo("/menu");
-    void GoToDelivery() => Nav.NavigateTo("/builder?mode=delivery");
-    void GoToPickup()   => Nav.NavigateTo("/builder?mode=pickup");
-    void GoToProfile()  => Nav.NavigateTo("/profile");
 
-    // CART
+    //  ui 
+    bool IsLoading = true;
+
     bool ShowCart = false;
+
+    //  navigation  
+    void GoHome() => Nav.NavigateTo("/");
+
+    void ViewMenu() => Nav.NavigateTo("/menu");
+
+    // delivery to order page
+    void GoToDelivery() => Nav.NavigateTo("/builder?mode=delivery");
+
+    // pickup order page 
+    void GoToPickup() => Nav.NavigateTo("/builder?mode=pickup");
+
+    // user profile page 
+    void GoToProfile() => Nav.NavigateTo("/profile");
+
+    //  cart 
     void OpenCart() => ShowCart = true;
+
     void CloseCart() => ShowCart = false;
 
-    // ---------- PIZZA TOP ----------
-    string SelectedSize  { get; set; } = "Mega";
-    string SelectedCrust { get; set; } = "Thin";
-    string SelectedSauce { get; set; } = "Marinara";
+    //  date base loading menu 
+    //pizza prices for sizes 
+    List<(string Name, decimal Price)> PizzaSizes = new();
+    //crust
+    List<(string Name, decimal Price)> Crusts = new();
+    //sauces 
+    List<(string Name, decimal Price)> Sauces = new();
+    //drinks and sizes 
+    List<(string Name, decimal Price)> DrinkSizes = new();
 
-    // ----- TOPPINGS (max 4, all free) -----
+    //  piza builder 
+    string SelectedSize { get; set; } = "";
+
+    string SelectedCrust { get; set; } = "";
+
+    string SelectedSauce { get; set; } = "";
+
+    //  toppings 
     class ToppingOption
     {
         public string Name { get; set; } = "";
+        public decimal Price { get; set; }
         public bool Selected { get; set; }
     }
 
-    List<ToppingOption> Toppings = new()
-    {
-        new ToppingOption { Name = "Provolone" },
-        new ToppingOption { Name = "Mozzarella" },
-        new ToppingOption { Name = "Parmesan Blend" },
-        new ToppingOption { Name = "Pepperoni" },
-
-        new ToppingOption { Name = "Bacon" },
-        new ToppingOption { Name = "Steak" },
-        new ToppingOption { Name = "Chicken" },
-        new ToppingOption { Name = "Banana Peppers" },
-
-        new ToppingOption { Name = "Sausage" },
-        new ToppingOption { Name = "Onions" },
-        new ToppingOption { Name = "Mushrooms" },
-        new ToppingOption { Name = "Black Olives" },
-
-        new ToppingOption { Name = "Spinach" },
-        new ToppingOption { Name = "Pineapple" }
-    };
+    List<ToppingOption> Toppings = new();
 
     int SelectedToppingCount => Toppings.Count(t => t.Selected);
-
-    int GetToppingCount() => SelectedToppingCount;
-
+    //selecting of toppings 
     void OnToppingChanged(ToppingOption topping, ChangeEventArgs e)
     {
         bool newValue = e.Value is bool b && b;
 
-        // If user unchecks – always allow it
+        //unchecking any topping
         if (!newValue)
         {
             topping.Selected = false;
             return;
         }
 
-        // If already at 4, don't allow adding another
+        // 4 toppings 
         const int toppingMax = 4;
         if (SelectedToppingCount >= toppingMax)
         {
@@ -320,92 +320,170 @@
         topping.Selected = true;
     }
 
-    // start at 0 so cart is empty
+    //pizza quanitry and the price of size, crust, sauce and toppings 
     int PizzaQuantity { get; set; } = 0;
 
-    decimal GetBasePrice() => SelectedSize switch
+    decimal GetBasePrice()
     {
-        "Byte" => 9.99m,
-        "Kilo" => 12.99m,
-        "Mega" => 14.99m,
-        "Giga" => 16.99m,
-        "Tera" => 19.99m,
-        _ => 14.99m
-    };
+        var size = PizzaSizes.FirstOrDefault(s => s.Name == SelectedSize);
+        return size.Price;
+    }
 
-    // free toppings
-    decimal PizzaTotal => PizzaQuantity * GetBasePrice();
+    decimal GetCrustPrice()
+    {
+        var crust = Crusts.FirstOrDefault(c => c.Name == SelectedCrust);
+        return crust.Price;
+    }
 
+    decimal GetSaucePrice()
+    {
+        var sauce = Sauces.FirstOrDefault(s => s.Name == SelectedSauce);
+        return sauce.Price;
+    }
+
+    decimal GetToppingsCost()
+    {
+        return Toppings.Where(t => t.Selected).Sum(t => t.Price);
+    }
+
+    //total cost of that pizza 
+    decimal PizzaTotal => PizzaQuantity * (GetBasePrice() + GetCrustPrice() + GetSaucePrice() + GetToppingsCost());
+
+
+    // pizza quanity 
     void IncreasePizzaQty() => PizzaQuantity++;
+
     void DecreasePizzaQty()
     {
         if (PizzaQuantity > 0) PizzaQuantity--;
     }
 
+    //add pizza to cart 
     void AddPizzaToCart()
     {
         if (PizzaQuantity == 0)
         {
             PizzaQuantity = 1;
         }
-
         OpenCart();
     }
 
-    // ---------- DRINKS & SIDES ----------
-    class OrderItem
+    // drinks  
+    //get the drinks, sizes and quanitys 
+    class DrinkItem
     {
         public string Name { get; set; } = "";
-        public decimal BasePrice { get; set; }
-        public int Quantity { get; set; }
-        public bool HasSizes { get; set; } = false;
-        public string Size { get; set; } = "Medium";
+        public string SelectedSize { get; set; } = "";
+        public int Quantity { get; set; } = 0;
     }
 
-    // 5 drinks, each with size
-    List<OrderItem> DrinkItems = new()
-    {
-        new OrderItem { Name = "Sprite",   BasePrice = 1.99m, HasSizes = true },
-        new OrderItem { Name = "Coke",     BasePrice = 1.99m, HasSizes = true },
-        new OrderItem { Name = "Water",    BasePrice = 1.49m, HasSizes = true },
-        new OrderItem { Name = "Lemonade", BasePrice = 1.99m, HasSizes = true },
-        new OrderItem { Name = "Iced Tea", BasePrice = 1.99m, HasSizes = true }
-    };
+    List<DrinkItem> Drinks = new();
 
-    // sides
-    List<OrderItem> SideItems = new()
+    //get and return the price of the drink for that size 
+    decimal GetDrinkPrice(DrinkItem drink)
     {
-        new OrderItem { Name = "Garlic Breadsticks", BasePrice = 5.99m },
-        new OrderItem { Name = "Cheesy Bread",       BasePrice = 6.49m },
-        new OrderItem { Name = "Side Salad",         BasePrice = 4.99m },
-        new OrderItem { Name = "Wings (8)",          BasePrice = 9.99m }
-    };
-
-    decimal GetItemPrice(OrderItem item)
-    {
-        if (!item.HasSizes) return item.BasePrice;
-
-        return item.Size switch
-        {
-            "Small"  => item.BasePrice,
-            "Medium" => item.BasePrice + 0.50m,
-            "Large"  => item.BasePrice + 1.00m,
-            _        => item.BasePrice
-        };
+        var size = DrinkSizes.FirstOrDefault(s => s.Name == drink.SelectedSize);
+        return size.Price;
     }
 
-    void IncreaseItem(OrderItem item) => item.Quantity++;
-    void DecreaseItem(OrderItem item)
+    //drinks quanity increase and decrease 
+    void IncreaseItem(DrinkItem item) => item.Quantity++;
+
+    void DecreaseItem(DrinkItem item)
     {
         if (item.Quantity > 0) item.Quantity--;
     }
 
-    decimal SideTotal =>
-        DrinkItems.Sum(i => GetItemPrice(i) * i.Quantity) +
-        SideItems.Sum(i => GetItemPrice(i) * i.Quantity);
+    //get the total price for that drink
+    decimal DrinkTotal => Drinks.Sum(d => GetDrinkPrice(d) * d.Quantity);
 
-    decimal OrderTotal => PizzaTotal + SideTotal;
+    //overall total for drinks and the pizza 
+    decimal OrderTotal => PizzaTotal + DrinkTotal;
 
-    void GoToCheckout() => Nav.NavigateTo("/checkout");
+    //Checkout 
+    void GoToCheckout()
+    {
+        // has to be something in the order 
+        if (OrderTotal == 0)
+        {
+            return; 
+        }
+
+        // Store cart data in CartService
+        CartService.PizzaSize = SelectedSize;
+        CartService.PizzaCrust = SelectedCrust;
+        CartService.PizzaSauce = SelectedSauce;
+        CartService.PizzaToppings = Toppings.Where(t => t.Selected).Select(t => t.Name).ToList();
+        CartService.PizzaQuantity = PizzaQuantity;
+        CartService.PizzaPrice = PizzaTotal;
+
+        // Store drinks
+        CartService.Drinks = Drinks
+            .Where(d => d.Quantity > 0)
+            .Select(d => new CartService.CartDrink
+            {
+                Name = d.Name,
+                Size = d.SelectedSize,
+                Quantity = d.Quantity,
+                Price = GetDrinkPrice(d)
+            })
+            .ToList();
+
+        // Navigate to checkout
+        Nav.NavigateTo("/checkout");
+    }
+
+  
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            //get menu data from menu services 
+            PizzaSizes = await MenuService.GetPizzaSizesAsync();
+            Crusts = await MenuService.GetPizzaCrustsAsync();
+            Sauces = await MenuService.GetSaucesAsync();
+            var toppingsData = await MenuService.GetToppingsAsync();
+            var drinksData = await MenuService.GetDrinksAsync();
+            DrinkSizes = await MenuService.GetDrinkSizesAsync();
+
+            // Set pizza default 
+            if (PizzaSizes.Any())
+            {
+                SelectedSize = PizzaSizes[0].Name;
+            }
+
+            if (Crusts.Any())
+            {
+                SelectedCrust = Crusts[0].Name;
+            }
+
+            if (Sauces.Any())
+            {
+                SelectedSauce = Sauces[0].Name;
+            }
+
+            // database toppings to ui toppings selection screen 
+            Toppings = toppingsData.Select(t => new ToppingOption
+            {
+                Name = t.Name,
+                Price = t.Price,
+                Selected = false
+            }).ToList();
+            //drink items from menu services 
+            Drinks = drinksData.Select(d => new DrinkItem
+            {
+                Name = d.Name,
+                SelectedSize = DrinkSizes.Any() ? DrinkSizes[0].Name : "",
+                Quantity = 0
+            }).ToList();
+            //validate that the menu loaded correctly 
+            IsLoading = false;
+        }
+        catch (Exception ex)
+        {
+            //Error if something with menu loading goes wrong 
+            Console.WriteLine($"Error loading menu: {ex.Message}");
+            IsLoading = false;
+        }
+    }
 }
-

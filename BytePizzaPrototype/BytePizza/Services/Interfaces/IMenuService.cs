@@ -20,10 +20,14 @@ namespace BytePizza.Services.Interfaces
         ///<returns>List of tuples; (Name, Price)</returns>
         Task<List<(string Name, decimal Price)>> GetPizzaCrustsAsync();
 
-        ///<returns>List of tuples; (Name, Price)</returns>
+        ///<returns>List of unique drink names with 0 price (pricing determined by size)</returns>
         Task<List<(string Name, decimal Price)>> GetDrinksAsync();
 
-        ///<returns>List of tuples; (Name, Price)</returns>
+        ///<returns>List of drink sizes (Small, Medium, Large) with prices</returns>
         Task<List<(string Name, decimal Price)>> GetDrinkSizesAsync();
+
+        ///<returns>List of tuples; (Name, Price)</returns>
+        Task<List<(string Name, decimal Price)>> GetSaucesAsync();
+        Task<decimal> GetDrinkPriceAsync(string drinkName, string size);
     }
 }
