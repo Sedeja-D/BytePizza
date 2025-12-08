@@ -270,6 +270,39 @@
     [Inject] CartService CartService { get; set; } = default!;
 
 
+    // Menu lists
+    List<(string Name, decimal Price)> PizzaSizes = new();
+    List<(string Name, decimal Price)> Crusts = new();
+    List<(string Name, decimal Price)> Sauces = new();
+    List<(string Name, decimal Price)> DrinkSizes = new();
+
+
+    // Profile UI flag
+    bool ShowProfile = false;
+
+    // Temp customer model
+    public class TempCustomer
+    {
+        public string Name { get; set; } = "Guest";
+        public string Phone { get; set; } = "";
+        public string Address { get; set; } = "";
+    }
+
+    TempCustomer? CurrentCustomer = null;
+
+    // Profile controls
+    void OpenProfile() => ShowProfile = true;
+    void CloseProfile() => ShowProfile = false;
+
+    // Logout
+    void LogOut()
+    {
+        CurrentCustomer = null;
+        ShowProfile = false;
+        Nav.NavigateTo("/");
+    }
+
+
     //  ui 
     bool IsLoading = true;
 
