@@ -255,7 +255,7 @@
                 </div>
                 @if (CurrentCustomer != null)
                 {
-                <button class="checkout-btn" @onclick="LogOut">LOG OUT</button>
+                <button class="checkout-btn" @onclick="GoHome">BACK TO HOME</button>
                 }
             </div>
         </div>
@@ -268,6 +268,7 @@
     [Inject] NavigationManager Nav { get; set; } = default!;
     [Inject] IMenuService MenuService { get; set; } = default!;
     [Inject] CartService CartService { get; set; } = default!;
+    [Inject] ICustomerService CustomerService { get; set; } = default!;
 
 
     // Menu lists
@@ -291,17 +292,25 @@
     TempCustomer? CurrentCustomer = null;
 
     // Profile controls
-    void OpenProfile() => ShowProfile = true;
-    void CloseProfile() => ShowProfile = false;
-
-    // Logout
-    void LogOut()
+    async Task OpenProfile()
     {
-        CurrentCustomer = null;
-        ShowProfile = false;
-        Nav.NavigateTo("/");
+        var customer = await CustomerService.GetCustomerAsync();
+
+        if (customer != null)
+        {
+            CurrentCustomer = new TempCustomer
+            {
+                Name = customer.Name,
+                Phone = customer.Phone,
+                Address = customer.Address
+            };
+        }
+        
+        ShowProfile = true;
     }
 
+
+    void CloseProfile() => ShowProfile = false;
 
     //  ui 
     bool IsLoading = true;
