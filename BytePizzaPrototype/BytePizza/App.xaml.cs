@@ -3,23 +3,21 @@
 //of WPF resources. We will most likely have no reason to work
 //within this file during development as we are utilizing Blazor UI.
 
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.EntityFrameworkCore;
 using BytePizza.Data;
-using BytePizza.Services.Interfaces;
+using BytePizza.Services;
 using BytePizza.Services.Implementations;
+using BytePizza.Services.Interfaces;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 using System.Configuration;
 using System.IO;
 using System.Windows;
-using System;
 
 namespace BytePizza
 {
     public partial class App : Application
     {
-        ///<summary>
-        ///Provides Dependency Injection Globally. This is how Blazor Components will get sevice instances.
-        ///</summary>
         public static IServiceProvider ServiceProvider { get; private set; } = null!;
         protected override void OnStartup(StartupEventArgs e)
         {
@@ -32,10 +30,11 @@ namespace BytePizza
             services.AddScoped<ICustomerService, CustomerService>();
             services.AddScoped<IMenuService, MenuService>();
             services.AddScoped<IOrderService, OrderService>();
+            //New for the placing of order into Database
+            services.AddSingleton<CartService>();
 
-            ///<summary>
-            ///Configuring blazor
-            ///</summary>
+
+        
             services.AddWpfBlazorWebView();
 
 

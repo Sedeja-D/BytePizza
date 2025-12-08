@@ -1,4 +1,7 @@
 @page "/checkout"
+@using BytePizza.Services.Interfaces
+@using BytePizza.Models
+@using BytePizza.Services
 
 <div class="checkout-page">
 
@@ -10,29 +13,48 @@
         <section class="checkout-left">
             <h1 class="checkout-heading">Your Order</h1>
 
-            @if (!Items.Any())
+            @if (!CartService.HasItems())
             {
                 <p class="checkout-empty">Your cart is empty.</p>
             }
             else
             {
-                @foreach (var item in Items)
+                <!-- Pizza -->
+                @if (CartService.PizzaQuantity > 0)
                 {
                     <div class="checkout-item">
                         <div class="checkout-item-info">
                             <div class="checkout-item-name">
-                                @item.Name - @item.Price.ToString("C")
+                                @CartService.PizzaSize Pizza - @CartService.PizzaPrice.ToString("C")
                             </div>
-                            @if (!string.IsNullOrWhiteSpace(item.Description))
-                            {
-                                <div class="checkout-item-desc">@item.Description</div>
-                            }
+                            <div class="checkout-item-desc">
+                                @CartService.PizzaCrust, @CartService.PizzaSauce Sauce
+                                @if (CartService.PizzaToppings.Any())
+                                {
+                                    <br />
+                                    <text>Toppings: @string.Join(", ", CartService.PizzaToppings)</text>
+                                }
+                            </div>
                         </div>
 
                         <div class="checkout-item-qty">
-                            <button @onclick="() => DecreaseItem(item)">−</button>
-                            <span>@item.Quantity</span>
-                            <button @onclick="() => IncreaseItem(item)">+</button>
+                            <span>Qty: @CartService.PizzaQuantity</span>
+                        </div>
+                    </div>
+                }
+
+                <!-- Drinks -->
+                @foreach (var drink in CartService.Drinks.Where(d => d.Quantity > 0))
+                {
+                    <div class="checkout-item">
+                        <div class="checkout-item-info">
+                            <div class="checkout-item-name">
+                                @drink.Name (@drink.Size)
+                            </div>
+                        </div>
+
+                        <div class="checkout-item-qty">
+                            <span>@drink.Quantity x @drink.Price.ToString("C")</span>
                         </div>
                     </div>
                 }
@@ -45,7 +67,7 @@
                         <span>@Subtotal.ToString("C")</span>
                     </div>
                     <div class="checkout-line">
-                        <span>Tax</span>
+                        <span>Tax (8%)</span>
                         <span>@Tax.ToString("C")</span>
                     </div>
                     <div class="checkout-line checkout-line-total">
@@ -69,12 +91,12 @@
             <div class="checkout-card">
                 <!-- PICKUP / DELIVERY TOGGLE -->
                 <div class="checkout-toggle">
-                    <button class="toggle-btn @(CheckoutMode == "pickup" ? "active" : "")"
-                            @onclick='() => CheckoutMode = "pickup"'>
+                    <button class="toggle-btn @(CheckoutMode == "Pickup" ? "active" : "")"
+                            @onclick='() => CheckoutMode = "Pickup"'>
                         PICKUP
                     </button>
-                    <button class="toggle-btn @(CheckoutMode == "delivery" ? "active" : "")"
-                            @onclick='() => CheckoutMode = "delivery"'>
+                    <button class="toggle-btn @(CheckoutMode == "Delivery" ? "active" : "")"
+                            @onclick='() => CheckoutMode = "Delivery"'>
                         DELIVERY
                     </button>
                 </div>
@@ -82,16 +104,16 @@
                 <!-- ADDRESS / NOTES -->
                 <div class="checkout-section">
                     <label class="checkout-label">
-                        @(CheckoutMode == "delivery" ? "Delivery Address" : "Pickup Name")
+                        @(CheckoutMode == "Delivery" ? "Delivery Address" : "Pickup Name")
                     </label>
                     <input class="checkout-input"
                            @bind="CheckoutAddress"
                            placeholder="123 Sesame Street" />
 
                     <label class="checkout-label">
-                        @(CheckoutMode == "delivery"
-                            ? "Delivery Notes (Optional)"
-                            : "Pickup Notes (Optional)")
+                        @(CheckoutMode == "Delivery"
+                                                ? "Delivery Notes (Optional)"
+                                                : "Pickup Notes (Optional)")
                     </label>
                     <input class="checkout-input"
                            @bind="CheckoutNotes"
@@ -122,14 +144,16 @@
                 </div>
 
                 <!-- PLACE ORDER -->
-                <button class="place-order-btn" @onclick="PlaceOrder">
-                    PLACE ORDER
+                <button class="place-order-btn"
+                        @onclick="PlaceOrder"
+                        disabled="@IsPlacingOrder">
+                    @(IsPlacingOrder ? "PROCESSING..." : "PLACE ORDER")
                 </button>
 
-                @if (ShowPaymentError)
+                @if (!string.IsNullOrEmpty(ErrorMessage))
                 {
                     <div class="payment-error">
-                        Payment Failed. Please Verify Card Details
+                        @ErrorMessage
                     </div>
                 }
             </div>
@@ -137,7 +161,7 @@
     </div>
 </div>
 
-@if (ShowConfirmation)
+@if (ShowConfirmation && CreatedOrder != null)
 {
     <div class="confirm-overlay">
         <div class="confirm-shell">
@@ -155,41 +179,48 @@
                 </div>
 
                 <h1 class="confirm-title">Order Confirmed</h1>
-                <p class="confirm-order-number">Order Number @ConfirmationOrderNumber</p>
+                <p class="confirm-order-number">Order Number @CreatedOrder.OrderId</p>
 
                 <hr class="confirm-divider" />
 
                 <!-- delivery / pickup + time -->
                 <div class="confirm-section">
                     <div class="confirm-label">
-                        @(CheckoutMode == "delivery" ? "Delivery" : "Pickup")
+                        @CreatedOrder.OrderType
                     </div>
                     <div class="confirm-subtext">
-                        @ConfirmationDateTime.ToString("MMM d, yyyy 'at' h:mm tt")
+                        @CreatedOrder.Orderdate.ToString("MMM d, yyyy 'at' h:mm tt")
                     </div>
                 </div>
 
-                <!-- items -->
-                @foreach (var line in ConfirmationItems)
+                <!-- Pizza -->
+                @if (CreatedOrder.Pizza != null)
                 {
                     <div class="confirm-item-block">
                         <div class="confirm-item-title">
-                            @line.Title
-                            @if (line.Price > 0)
-                            {
-                                <span class="confirm-item-price">
-                                    @line.Price.ToString("C")
-                                </span>
-                            }
+                            @CreatedOrder.Pizza.PizzaSize Pizza - @CreatedOrder.Pizza.PizzaOrderPrice.ToString("C")
                         </div>
-
-                        @if (!string.IsNullOrWhiteSpace(line.Subtitle))
-                        {
-                            <div class="confirm-item-subtitle">
-                                @line.Subtitle
-                            </div>
-                        }
+                        <div class="confirm-item-subtitle">
+                            @CreatedOrder.Pizza.Crust, @CreatedOrder.Pizza.Sauce,
+                            @CreatedOrder.Pizza.Toppings
+                        </div>
                     </div>
+                }
+
+                <!-- Drinks -->
+                @if (CreatedOrder.Drinks != null && CreatedOrder.Drinks.Any())
+                {
+                    @foreach (var drink in CreatedOrder.Drinks)
+                    {
+                        <div class="confirm-item-block">
+                            <div class="confirm-item-title">
+                                @drink.DrinkType (@drink.DrinkSize) - @drink.DrinkOrderPrice.ToString("C")
+                            </div>
+                            <div class="confirm-item-subtitle">
+                                Quantity: @drink.DrinkQuantity
+                            </div>
+                        </div>
+                    }
                 }
 
                 <hr class="confirm-divider" />
@@ -198,20 +229,20 @@
                 <div class="confirm-totals">
                     <div class="confirm-line">
                         <span>Subtotal</span>
-                        <span>@ConfirmationSubtotal.ToString("C")</span>
+                        <span>@CreatedOrder.Subtotal.ToString("C")</span>
                     </div>
                     <div class="confirm-line">
                         <span>Tax</span>
-                        <span>@ConfirmationTax.ToString("C")</span>
+                        <span>@CreatedOrder.Tax.ToString("C")</span>
                     </div>
 
                     <div class="confirm-total-line">
                         <span>Total</span>
-                        <span>@ConfirmationTotal.ToString("C")</span>
+                        <span>@CreatedOrder.Total.ToString("C")</span>
                     </div>
 
                     <div class="confirm-card-line">
-                        @MaskedCard
+                        **** **** **** 9012
                     </div>
                 </div>
 
@@ -228,109 +259,124 @@
 
 
 @code {
-    [Inject] NavigationManager Nav { get; set; }
+    //   INJECTION 
+    [Inject] NavigationManager Nav { get; set; } = default!;
+    [Inject] CartService CartService { get; set; } = default!;
+    [Inject] IOrderService OrderService { get; set; } = default!;
+    [Inject] ICustomerService CustomerService { get; set; } = default!;
 
+    //  NAVIGATION 
     void GoHome() => Nav.NavigateTo("/");
     void GoBackToBuilder() => Nav.NavigateTo("/builder");
 
-    // ----- ORDER ITEMS -----
-    class CheckoutItem
-    {
-        public string Name { get; set; } = "";
-        public string Description { get; set; } = "";
-        public decimal Price { get; set; }
-        public int Quantity { get; set; }
-    }
+    //  CHECKOUT  
+    decimal Subtotal => CartService.GetSubtotal();
+    decimal Tax => Math.Round(Subtotal * 0.08m, 2);
+    decimal Total => Subtotal + Tax;
 
-    // TEMP: will be filled from cart later by backend
-    // Right now this starts empty.
-    List<CheckoutItem> Items = new();
+    string CheckoutMode = "Pickup";
+    string CheckoutAddress = "";
+    string CheckoutNotes = "";
+    string SelectedCard = "visa";
 
-    decimal Subtotal => Items.Sum(i => i.Price * i.Quantity);
-    decimal Tax      => Math.Round(Subtotal * 0.10m, 2);
-    decimal Total    => Subtotal + Tax;
+    bool IsPlacingOrder = false;
+    string ErrorMessage = "";
 
-    void IncreaseItem(CheckoutItem item) => item.Quantity++;
-    void DecreaseItem(CheckoutItem item)
-    {
-        if (item.Quantity > 1) item.Quantity--;
-        else Items.Remove(item);
-    }
-
-    // ----- CHECKOUT FORM -----
-    string CheckoutMode    = "delivery";
-    string CheckoutAddress = "123 Sesame Street";
-    string CheckoutNotes   = "Leave at door";
-    string SelectedCard    = "visa";
-    bool   ShowPaymentError = false;
-
-    // -------- CONFIRMATION STATE --------
+    //  CONFIRMATION  
     bool ShowConfirmation = false;
+    Order? CreatedOrder = null;
 
-    string   ConfirmationOrderNumber = "742961";
-    DateTime ConfirmationDateTime    = DateTime.Now;
-
-    // simple receipt line model
-    class ReceiptLineItem
-    {
-        public string Title { get; set; } = "";
-        public string Subtitle { get; set; } = "";
-        public decimal Price { get; set; }
-    }
-
-    List<ReceiptLineItem> ConfirmationItems = new();
-
-    decimal ConfirmationSubtotal { get; set; }
-    decimal ConfirmationTax      { get; set; }
-    decimal ConfirmationTotal    { get; set; }
-    string  MaskedCard           { get; set; } = "**** **** **** 9012";
-
-    // called when user hits PLACE ORDER
-    void PlaceOrder()
+    //  PLACE ORDER 
+    /// Creates order in database and shows confirmation
+    async Task PlaceOrder()
     {
         if (string.IsNullOrWhiteSpace(SelectedCard))
         {
-            ShowPaymentError = true;
+            ErrorMessage = "Please select a payment method";
             return;
         }
 
-        ShowPaymentError = false;
-
-        // fake order number + time for now
-        ConfirmationOrderNumber = new Random().Next(100000, 999999).ToString();
-        ConfirmationDateTime    = DateTime.Now;
-
-        // TEMP: sample items for receipt (backend will swap in real cart data)
-        ConfirmationItems = new List<ReceiptLineItem>
+        if (!CartService.HasItems())
         {
-            new ReceiptLineItem
+            ErrorMessage = "Your cart is empty";
+            return;
+        }
+
+        IsPlacingOrder = true;
+        ErrorMessage = "";
+
+        try
+        {
+            // customer log in 
+            var customer = await CustomerService.GetCustomerAsync();
+            if (customer == null)
             {
-                Title    = "Byte Pizza - $14.49",
-                Subtitle = "Thin Crust , Provolone, Sausage, Mushroom, Black Olives",
-                Price    = 14.49m
-            },
-            new ReceiptLineItem
-            {
-                Title    = "Wings (8) - $9.99",
-                Subtitle = "BBQ",
-                Price    = 9.99m
+                ErrorMessage = "Please log in to place an order";
+                Nav.NavigateTo("/login");
+                return;
             }
-        };
 
-        ConfirmationSubtotal = 24.48m;
-        ConfirmationTax      = 4.25m;
-        ConfirmationTotal    = 28.74m;
+            //pizza order object created 
+            var pizzaOrder = new PizzaOrder
+            {
+                PizzaSize = CartService.PizzaSize,
+                Crust = CartService.PizzaCrust,
+                Sauce = CartService.PizzaSauce,
+                Toppings = string.Join(",", CartService.PizzaToppings),
+                Quantity = CartService.PizzaQuantity,
+                PizzaOrderPrice = CartService.PizzaPrice
+            };
 
-        // card placeholder)
-        MaskedCard = "**** **** **** 9012";
+            // Drink order list 
+            var drinkOrders = CartService.Drinks
+                .Select(d => new DrinkOrder
+                {
+                    DrinkType = d.Name,
+                    DrinkSize = d.Size,
+                    DrinkQuantity = d.Quantity,
+                    DrinkOrderPrice = d.Price
+                })
+                .ToList();
 
-        ShowConfirmation = true;
+            // create a new order in the database 
+            CreatedOrder = await OrderService.CreateOrderAsync(
+                customer.CustomerId,
+                CheckoutMode,
+                pizzaOrder,
+                drinkOrders,
+                taxRate: 0.08m
+            );
+
+            // remove everything in cart 
+            CartService.Clear();
+
+            // confirmation
+            ShowConfirmation = true;
+        }
+        catch (Exception ex)
+        {
+            ErrorMessage = $"Error placing order: {ex.Message}";
+            Console.WriteLine($"Order error: {ex}");
+        }
+        finally
+        {
+            IsPlacingOrder = false;
+        }
     }
 
     void CloseConfirmation()
     {
         ShowConfirmation = false;
-        // after closing receipt, sent back to landing
+        CreatedOrder = null;
         Nav.NavigateTo("/");
+    }
+
+    
+    protected override void OnInitialized()
+    {
+        if (!CartService.HasItems())
+        {
+            Nav.NavigateTo("/builder");
+        }
     }
 }
