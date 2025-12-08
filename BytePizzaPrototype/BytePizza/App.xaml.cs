@@ -18,34 +18,35 @@ namespace BytePizza
     public partial class App : Application
     {
         ///<summary>
-        ///Provides Dependency Injection Globally. This is how Razor Components will get sevice instances.
+        ///Provides Dependency Injection Globally. This is how Blazor Components will get sevice instances.
         ///</summary>
         public static IServiceProvider ServiceProvider { get; private set; } = null!;
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
-
             var services = new ServiceCollection();
-
             var databasePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "BytePizza.db");
-
             services.AddDbContext<ApplicationDBContext>(options => options.UseSqlite($"Data Source= {databasePath}"));
 
+            //Business logic registration
             services.AddScoped<ICustomerService, CustomerService>();
-
-            //Will add each interface and implemantation service combo after imlementation
+            services.AddScoped<IMenuService, MenuService>();
+            services.AddScoped<IOrderService, OrderService>();
 
             ///<summary>
             ///Configuring blazor
             ///</summary>
             services.AddWpfBlazorWebView();
 
+
+            //Assists with debugging Blazor specific features while the app is in development
             #if DEBUG
             services.AddBlazorWebViewDeveloperTools();
             #endif
 
-            ServiceProvider = services.BuildServiceProvider();
 
+            ServiceProvider = services.BuildServiceProvider();
+            //Database Initialization
             using (var scope = ServiceProvider.CreateScope())
             {
                 var context = scope.ServiceProvider.GetRequiredService<ApplicationDBContext>();
