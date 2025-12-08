@@ -84,18 +84,84 @@
 
                 <p class="signup-text">
                     Not a member?
-                    <button class="link-button signup-link" type="button">Sign up now</button>
+                    <button class="link-button signup-link" @onclick="OpenSignup" type="button">Sign up now</button>
                 </p>
 
             </div>
         </div>
     }
 
-    @* All extra popups disabled for now *@
+    <!-- SIGNUP POPUP -->
+    @if (ShowSignup)
+    {
+        <div class="login-overlay">
+            <div class="login-box">
+
+                <!-- Close Button -->
+                <button class="close-btn" @onclick="CloseSignup">✕</button>
+
+                <h1 class="login-title">Sign Up</h1>
+
+                @if (ShowSignupError)
+                {
+                    <div class="error-text">Error. Did you enter a 10 digit phone number that hasn't been used previously?</div>
+                }
+
+                @if (ShowSignupSuccess)
+                {
+                    <div style="color: green;">Account created successfully! Please navigate back to sign in page.</div>
+                }
+
+                <!-- Inputs/icons -->
+                <div class="input-group">
+                    <span class="input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                        </svg>
+                    </span>
+                    <input @bind="SignupName" placeholder="Your Name" />
+                </div>
+
+                <div class="input-group">
+                    <span class="input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                        </svg>
+                    </span>
+                    <input @bind="SignupPhone" placeholder="Your Phone Number" />
+                </div>
+
+                <div class="input-group">
+                    <span class="input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                        </svg>
+                    </span>
+                    <input @bind="SignupAddress" placeholder="Your Full Address" />
+                </div>
+
+                <div class="input-group">
+                    <span class="input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="white" viewBox="0 0 24 24">
+                            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+                        </svg>
+                    </span>
+                    <input type="password" @bind="SignupPassword" placeholder="Your Password" />
+                </div>
+
+                <p class="signup-text">
+                    Already a member?
+                    <button class="link-button signup-link" @onclick="OpenLogin" type="button">Sign in now</button>
+                </p>
+                
+                 <button class="login-btn" @onclick="SubmitSignup">SIGN UP</button>
+
+            </div>
+        </div>
+    }
     @*
-    @if (ShowSignup) { ... }
-    @if (ShowForgot) { ... }
-    @if (ShowDeliveryEligibility) { ... }
+    @if (ShowForgot) { <div><div> }
+    @if (ShowDeliveryEligibility) { <div><div> }
     *@
 
     @if (ShowCart)
@@ -193,7 +259,14 @@
         ShowError = false;
         ShowLogin = true;
         ShowProfile = false;
+        ShowSignup = false;
+        ShowSignupSuccess = false;
+        SignupName = "";
+        SignupPhone = "";
+        SignupAddress = "";
+        SignupPassword = "";
     }
+
     void CloseLogin() => ShowLogin = false;
 
     // Called by the buttons in the nav / ORDER NOW
@@ -305,24 +378,63 @@
 
     void GoToCheckout() => Nav.NavigateTo("/checkout");
 
+    // -----------SIGN UP-----------
+    bool ShowSignup = false;
+    bool ShowSignupError = false;
+    bool ShowSignupSuccess = false;
+    string SignupName = "";
+    string SignupPhone = "";
+    string SignupAddress = "";
+    string SignupPassword = "";
+    void OpenSignup() 
+    {
+        ShowSignup = true;
+        ShowLogin = false;
+        StateHasChanged();
+    }
+
+    void CloseSignup() 
+    {
+        ShowSignup = false;
+        ShowSignupSuccess = false;
+        ShowSignupError = false;
+        SignupName = "";
+        SignupPhone = "";
+        SignupAddress = "";
+        SignupPassword = "";
+    }
+
+    async Task SubmitSignup()
+    {
+        bool SignupSuccess = await CustomerService.SignUpAsync(SignupName, SignupPhone, SignupAddress, SignupPassword);
+
+        if (!SignupSuccess)
+        {
+            ShowSignupError = true;
+        }
+
+        else
+        {
+            ShowSignupSuccess = true;
+            ShowSignupError = false;
+            SignupName = "";
+            SignupPhone = "";
+            SignupAddress = "";
+            SignupPassword = "";
+        }
+    }
+
     // ---------------- EXTRA POPUPS (disabled) ----------------
     @* 
-    bool ShowSignup = false;
     bool ShowForgot = false;
     bool ShowDeliveryEligibility = false;
     bool IsOutsideDeliveryArea = true;
     bool HasCheckedDeliveryArea = false;
     string DeliveryNotes = "";
-    string SignupName = "";
-    string SignupPhone = "";
-    string SignupAddress = "";
-    string SignupPassword = "";
     string ForgotPhone = "";
     bool ShowForgotError = false;
 
-    void OpenSignup() { ... }
     void OpenForgot() { ... }
-    void CloseSignup() { ... }
     void CloseForgot() { ... }
     void BackToLoginFromSignup() { ... }
     void BackToLoginFromForgot() { ... }
