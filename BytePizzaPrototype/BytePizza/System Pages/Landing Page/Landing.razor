@@ -132,9 +132,7 @@
                         }
                     }
                 </div>
-
-                <!-- no totals for now -->
-                <button class="checkout-btn">CHECK OUT</button>
+                <button class="checkout-btn" @onclick="GoToCheckout">CHECK OUT</button>
             </div>
         </div>
     }
@@ -198,7 +196,6 @@
         }
         else if (NextAction == "delivery")
         {
-            // for now, delivery also goes straight to builder
             Nav.NavigateTo("/builder?mode=delivery");
         }
         else
@@ -231,6 +228,8 @@
         if (item.Quantity > 1) item.Quantity--;
         else CartItems.Remove(item);
     }
+
+    void GoToCheckout() => Nav.NavigateTo("/checkout");
 
     // ---------------- EXTRA POPUPS (disabled) ----------------
     @* 

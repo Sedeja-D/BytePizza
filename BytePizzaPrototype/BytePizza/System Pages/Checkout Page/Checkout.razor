@@ -1,0 +1,336 @@
+@page "/checkout"
+
+<div class="checkout-page">
+
+    <!-- HOME BUTTON HIT AREA -->
+    <button class="home-hit-area" @onclick="GoHome"></button>
+
+    <div class="checkout-shell">
+        <!-- LEFT SIDE: ORDER SUMMARY -->
+        <section class="checkout-left">
+            <h1 class="checkout-heading">Your Order</h1>
+
+            @if (!Items.Any())
+            {
+                <p class="checkout-empty">Your cart is empty.</p>
+            }
+            else
+            {
+                @foreach (var item in Items)
+                {
+                    <div class="checkout-item">
+                        <div class="checkout-item-info">
+                            <div class="checkout-item-name">
+                                @item.Name - @item.Price.ToString("C")
+                            </div>
+                            @if (!string.IsNullOrWhiteSpace(item.Description))
+                            {
+                                <div class="checkout-item-desc">@item.Description</div>
+                            }
+                        </div>
+
+                        <div class="checkout-item-qty">
+                            <button @onclick="() => DecreaseItem(item)">−</button>
+                            <span>@item.Quantity</span>
+                            <button @onclick="() => IncreaseItem(item)">+</button>
+                        </div>
+                    </div>
+                }
+
+                <hr class="checkout-separator" />
+
+                <div class="checkout-totals">
+                    <div class="checkout-line">
+                        <span>Subtotal</span>
+                        <span>@Subtotal.ToString("C")</span>
+                    </div>
+                    <div class="checkout-line">
+                        <span>Tax</span>
+                        <span>@Tax.ToString("C")</span>
+                    </div>
+                    <div class="checkout-line checkout-line-total">
+                        <span>Total</span>
+                        <span>@Total.ToString("C")</span>
+                    </div>
+                </div>
+            }
+        </section>
+
+        <!-- RIGHT SIDE: CHECKOUT FORM -->
+        <section class="checkout-right">
+            <!-- logo centered -->
+            <div class="checkout-logo-row">
+                <img src="/Images/Logo.png"
+                     alt="Byte Pizza"
+                     class="checkout-logo-img" />
+                <button class="checkout-close" @onclick="GoBackToBuilder">Close</button>
+            </div>
+
+            <div class="checkout-card">
+                <!-- PICKUP / DELIVERY TOGGLE -->
+                <div class="checkout-toggle">
+                    <button class="toggle-btn @(CheckoutMode == "pickup" ? "active" : "")"
+                            @onclick='() => CheckoutMode = "pickup"'>
+                        PICKUP
+                    </button>
+                    <button class="toggle-btn @(CheckoutMode == "delivery" ? "active" : "")"
+                            @onclick='() => CheckoutMode = "delivery"'>
+                        DELIVERY
+                    </button>
+                </div>
+
+                <!-- ADDRESS / NOTES -->
+                <div class="checkout-section">
+                    <label class="checkout-label">
+                        @(CheckoutMode == "delivery" ? "Delivery Address" : "Pickup Name")
+                    </label>
+                    <input class="checkout-input"
+                           @bind="CheckoutAddress"
+                           placeholder="123 Sesame Street" />
+
+                    <label class="checkout-label">
+                        @(CheckoutMode == "delivery"
+                            ? "Delivery Notes (Optional)"
+                            : "Pickup Notes (Optional)")
+                    </label>
+                    <input class="checkout-input"
+                           @bind="CheckoutNotes"
+                           placeholder="Leave at door" />
+                </div>
+
+                <!-- SAVED CARDS -->
+                <div class="checkout-section">
+                    <div class="saved-cards-title">Saved Cards</div>
+                    <div class="saved-cards-row">
+                        <div class="saved-card @(SelectedCard == "visa" ? "selected" : "")"
+                             @onclick='() => SelectedCard = "visa"'>
+                            <div class="saved-card-brand">Visa ending 4567</div>
+                            <div class="saved-card-meta">Exp 12/25</div>
+                        </div>
+
+                        <div class="saved-card @(SelectedCard == "mc" ? "selected" : "")"
+                             @onclick='() => SelectedCard = "mc"'>
+                            <div class="saved-card-brand">Mastercard #901</div>
+                            <div class="saved-card-meta">Exp 07/24</div>
+                        </div>
+
+                        <div class="saved-card add-card @(SelectedCard == "new" ? "selected" : "")"
+                             @onclick='() => SelectedCard = "new"'>
+                            + ADD NEW CARD
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PLACE ORDER -->
+                <button class="place-order-btn" @onclick="PlaceOrder">
+                    PLACE ORDER
+                </button>
+
+                @if (ShowPaymentError)
+                {
+                    <div class="payment-error">
+                        Payment Failed. Please Verify Card Details
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+@if (ShowConfirmation)
+{
+    <div class="confirm-overlay">
+        <div class="confirm-shell">
+
+            <!-- patterned side -->
+            <div class="confirm-side"></div>
+
+            <!-- middle white receipt card -->
+            <div class="confirm-receipt">
+                <button class="confirm-close" @onclick="CloseConfirmation">Close</button>
+
+                <!-- logo -->
+                <div class="confirm-logo-row">
+                    <img src="/Images/Logo.png" alt="Byte Pizza" class="confirm-logo" />
+                </div>
+
+                <h1 class="confirm-title">Order Confirmed</h1>
+                <p class="confirm-order-number">Order Number @ConfirmationOrderNumber</p>
+
+                <hr class="confirm-divider" />
+
+                <!-- delivery / pickup + time -->
+                <div class="confirm-section">
+                    <div class="confirm-label">
+                        @(CheckoutMode == "delivery" ? "Delivery" : "Pickup")
+                    </div>
+                    <div class="confirm-subtext">
+                        @ConfirmationDateTime.ToString("MMM d, yyyy 'at' h:mm tt")
+                    </div>
+                </div>
+
+                <!-- items -->
+                @foreach (var line in ConfirmationItems)
+                {
+                    <div class="confirm-item-block">
+                        <div class="confirm-item-title">
+                            @line.Title
+                            @if (line.Price > 0)
+                            {
+                                <span class="confirm-item-price">
+                                    @line.Price.ToString("C")
+                                </span>
+                            }
+                        </div>
+
+                        @if (!string.IsNullOrWhiteSpace(line.Subtitle))
+                        {
+                            <div class="confirm-item-subtitle">
+                                @line.Subtitle
+                            </div>
+                        }
+                    </div>
+                }
+
+                <hr class="confirm-divider" />
+
+                <!-- totals -->
+                <div class="confirm-totals">
+                    <div class="confirm-line">
+                        <span>Subtotal</span>
+                        <span>@ConfirmationSubtotal.ToString("C")</span>
+                    </div>
+                    <div class="confirm-line">
+                        <span>Tax</span>
+                        <span>@ConfirmationTax.ToString("C")</span>
+                    </div>
+
+                    <div class="confirm-total-line">
+                        <span>Total</span>
+                        <span>@ConfirmationTotal.ToString("C")</span>
+                    </div>
+
+                    <div class="confirm-card-line">
+                        @MaskedCard
+                    </div>
+                </div>
+
+                <div class="confirm-thankyou">
+                    Thank You !
+                </div>
+            </div>
+
+            <!-- patterned side -->
+            <div class="confirm-side"></div>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Inject] NavigationManager Nav { get; set; }
+
+    void GoHome() => Nav.NavigateTo("/");
+    void GoBackToBuilder() => Nav.NavigateTo("/builder");
+
+    // ----- ORDER ITEMS -----
+    class CheckoutItem
+    {
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
+        public decimal Price { get; set; }
+        public int Quantity { get; set; }
+    }
+
+    // TEMP: will be filled from cart later by backend
+    // Right now this starts empty.
+    List<CheckoutItem> Items = new();
+
+    decimal Subtotal => Items.Sum(i => i.Price * i.Quantity);
+    decimal Tax      => Math.Round(Subtotal * 0.10m, 2);
+    decimal Total    => Subtotal + Tax;
+
+    void IncreaseItem(CheckoutItem item) => item.Quantity++;
+    void DecreaseItem(CheckoutItem item)
+    {
+        if (item.Quantity > 1) item.Quantity--;
+        else Items.Remove(item);
+    }
+
+    // ----- CHECKOUT FORM -----
+    string CheckoutMode    = "delivery";
+    string CheckoutAddress = "123 Sesame Street";
+    string CheckoutNotes   = "Leave at door";
+    string SelectedCard    = "visa";
+    bool   ShowPaymentError = false;
+
+    // -------- CONFIRMATION STATE --------
+    bool ShowConfirmation = false;
+
+    string   ConfirmationOrderNumber = "742961";
+    DateTime ConfirmationDateTime    = DateTime.Now;
+
+    // simple receipt line model
+    class ReceiptLineItem
+    {
+        public string Title { get; set; } = "";
+        public string Subtitle { get; set; } = "";
+        public decimal Price { get; set; }
+    }
+
+    List<ReceiptLineItem> ConfirmationItems = new();
+
+    decimal ConfirmationSubtotal { get; set; }
+    decimal ConfirmationTax      { get; set; }
+    decimal ConfirmationTotal    { get; set; }
+    string  MaskedCard           { get; set; } = "**** **** **** 9012";
+
+    // called when user hits PLACE ORDER
+    void PlaceOrder()
+    {
+        if (string.IsNullOrWhiteSpace(SelectedCard))
+        {
+            ShowPaymentError = true;
+            return;
+        }
+
+        ShowPaymentError = false;
+
+        // fake order number + time for now
+        ConfirmationOrderNumber = new Random().Next(100000, 999999).ToString();
+        ConfirmationDateTime    = DateTime.Now;
+
+        // TEMP: sample items for receipt (backend will swap in real cart data)
+        ConfirmationItems = new List<ReceiptLineItem>
+        {
+            new ReceiptLineItem
+            {
+                Title    = "Byte Pizza - $14.49",
+                Subtitle = "Thin Crust , Provolone, Sausage, Mushroom, Black Olives",
+                Price    = 14.49m
+            },
+            new ReceiptLineItem
+            {
+                Title    = "Wings (8) - $9.99",
+                Subtitle = "BBQ",
+                Price    = 9.99m
+            }
+        };
+
+        ConfirmationSubtotal = 24.48m;
+        ConfirmationTax      = 4.25m;
+        ConfirmationTotal    = 28.74m;
+
+        // card placeholder)
+        MaskedCard = "**** **** **** 9012";
+
+        ShowConfirmation = true;
+    }
+
+    void CloseConfirmation()
+    {
+        ShowConfirmation = false;
+        // after closing receipt, sent back to landing
+        Nav.NavigateTo("/");
+    }
+}

@@ -108,26 +108,27 @@
 
                     <div class="pizza-section">
                         <h3 class="section-title">Choose up to 4 Toppings :</h3>
-                        <div class="toppings-grid">
-                            <label><input type="checkbox" @bind="ToppingProvolone" /> Provolone</label>
-                            <label><input type="checkbox" @bind="ToppingMozzarella" /> Mozzarella</label>
-                            <label><input type="checkbox" @bind="ToppingParmesan" /> Parmesan Blend</label>
-                            <label><input type="checkbox" @bind="ToppingPepperoni" /> Pepperoni</label>
 
-                            <label><input type="checkbox" @bind="ToppingBacon" /> Bacon</label>
-                            <label><input type="checkbox" @bind="ToppingSteak" /> Steak</label>
-                            <label><input type="checkbox" @bind="ToppingChicken" /> Chicken</label>
-                            <label><input type="checkbox" @bind="ToppingBananaPeppers" /> Banana Peppers</label>
-
-                            <label><input type="checkbox" @bind="ToppingSausage" /> Sausage</label>
-                            <label><input type="checkbox" @bind="ToppingOnions" /> Onions</label>
-                            <label><input type="checkbox" @bind="ToppingMushrooms" /> Mushrooms</label>
-                            <label><input type="checkbox" @bind="ToppingBlackOlives" /> Black Olives</label>
-
-                            <label><input type="checkbox" @bind="ToppingSpinach" /> Spinach</label>
-                            <label><input type="checkbox" @bind="ToppingPineapple" /> Pineapple</label>
+                        <!-- visual indicator -->
+                        <div class="topping-counter">
+                            @SelectedToppingCount / 4 selected
+                            @if (SelectedToppingCount >= 4)
+                            {
+                                <span class="topping-warning">Max toppings reached</span>
+                            }
                         </div>
-                        <p class="topping-note">(*Toppings pricing for now is simple: each one adds a small amount.)</p>
+
+                        <div class="toppings-grid">
+                            @foreach (var topping in Toppings)
+                            {
+                                <label>
+                                    <input type="checkbox"
+                                           checked="@topping.Selected"
+                                           @onchange="(e) => OnToppingChanged(topping, e)" />
+                                    @topping.Name
+                                </label>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
@@ -235,8 +236,7 @@
                             <span>@OrderTotal.ToString("C")</span>
                         </div>
                     </div>
-
-                    <button class="checkout-btn">CHECK OUT</button>
+                    <button class="checkout-btn" @onclick="GoToCheckout">CHECK OUT</button>
                 }
             </div>
         </div>
@@ -264,13 +264,61 @@
     string SelectedCrust { get; set; } = "Thin";
     string SelectedSauce { get; set; } = "Marinara";
 
-    // toppings
-    bool ToppingProvolone, ToppingMozzarella, ToppingParmesan, ToppingPepperoni;
-    bool ToppingBacon, ToppingSteak, ToppingChicken, ToppingBananaPeppers;
-    bool ToppingSausage, ToppingOnions, ToppingMushrooms, ToppingBlackOlives;
-    bool ToppingSpinach, ToppingPineapple;
+    // ----- TOPPINGS (max 4, all free) -----
+    class ToppingOption
+    {
+        public string Name { get; set; } = "";
+        public bool Selected { get; set; }
+    }
 
-    // start at 0 so cart is empty initially
+    List<ToppingOption> Toppings = new()
+    {
+        new ToppingOption { Name = "Provolone" },
+        new ToppingOption { Name = "Mozzarella" },
+        new ToppingOption { Name = "Parmesan Blend" },
+        new ToppingOption { Name = "Pepperoni" },
+
+        new ToppingOption { Name = "Bacon" },
+        new ToppingOption { Name = "Steak" },
+        new ToppingOption { Name = "Chicken" },
+        new ToppingOption { Name = "Banana Peppers" },
+
+        new ToppingOption { Name = "Sausage" },
+        new ToppingOption { Name = "Onions" },
+        new ToppingOption { Name = "Mushrooms" },
+        new ToppingOption { Name = "Black Olives" },
+
+        new ToppingOption { Name = "Spinach" },
+        new ToppingOption { Name = "Pineapple" }
+    };
+
+    int SelectedToppingCount => Toppings.Count(t => t.Selected);
+
+    int GetToppingCount() => SelectedToppingCount;
+
+    void OnToppingChanged(ToppingOption topping, ChangeEventArgs e)
+    {
+        bool newValue = e.Value is bool b && b;
+
+        // If user unchecks – always allow it
+        if (!newValue)
+        {
+            topping.Selected = false;
+            return;
+        }
+
+        // If already at 4, don't allow adding another
+        if (SelectedToppingCount >= 4)
+        {
+            topping.Selected = false;
+            StateHasChanged();
+            return;
+        }
+
+        topping.Selected = true;
+    }
+
+    // start at 0 so cart is empty
     int PizzaQuantity { get; set; } = 0;
 
     decimal GetBasePrice() => SelectedSize switch
@@ -283,19 +331,8 @@
         _ => 14.99m
     };
 
-    int GetToppingCount()
-    {
-        var list = new[]
-        {
-            ToppingProvolone, ToppingMozzarella, ToppingParmesan, ToppingPepperoni,
-            ToppingBacon, ToppingSteak, ToppingChicken, ToppingBananaPeppers,
-            ToppingSausage, ToppingOnions, ToppingMushrooms, ToppingBlackOlives,
-            ToppingSpinach, ToppingPineapple
-        };
-        return list.Count(t => t);
-    }
-
-    decimal PizzaTotal => PizzaQuantity * (GetBasePrice() + GetToppingCount() * 1.00m);
+    // free toppings
+    decimal PizzaTotal => PizzaQuantity * GetBasePrice();
 
     void IncreasePizzaQty() => PizzaQuantity++;
     void DecreasePizzaQty()
@@ -305,7 +342,6 @@
 
     void AddPizzaToCart()
     {
-        
         if (PizzaQuantity == 0)
         {
             PizzaQuantity = 1;
@@ -324,13 +360,14 @@
         public string Size { get; set; } = "Medium";
     }
 
-    // sprite, water, lemonade, tea with sizes
+    // 5 drinks, each with size
     List<OrderItem> DrinkItems = new()
     {
         new OrderItem { Name = "Sprite",   BasePrice = 1.99m, HasSizes = true },
+        new OrderItem { Name = "Coke",     BasePrice = 1.99m, HasSizes = true },
         new OrderItem { Name = "Water",    BasePrice = 1.49m, HasSizes = true },
         new OrderItem { Name = "Lemonade", BasePrice = 1.99m, HasSizes = true },
-        new OrderItem { Name = "Tea",      BasePrice = 1.99m, HasSizes = true }
+        new OrderItem { Name = "Iced Tea", BasePrice = 1.99m, HasSizes = true }
     };
 
     // sides
@@ -366,5 +403,7 @@
         SideItems.Sum(i => GetItemPrice(i) * i.Quantity);
 
     decimal OrderTotal => PizzaTotal + SideTotal;
+
+    void GoToCheckout() => Nav.NavigateTo("/checkout");
 }
 
