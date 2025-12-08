@@ -52,9 +52,7 @@ namespace BytePizza.Data
 
             if (!context.MenuItems.Any())
             {
-                return;
-            }
-            var menu = new List<MenuItem>
+                var menu = new List<MenuItem>
                 {
                     // Pizza Sizes
                     new MenuItem { Name = "Byte", Category = "PizzaSize", MenuItemPrice = 9.99m },
@@ -110,9 +108,9 @@ namespace BytePizza.Data
                     new MenuItem { Name = "Lemonade", Category = "Drink-Medium", MenuItemPrice = 2.29m },
                     new MenuItem { Name = "Lemonade", Category = "Drink-Large", MenuItemPrice = 2.79m }
                 };
-
-            context.MenuItems.AddRange(menu);
-            context.SaveChanges();
+                context.MenuItems.AddRange(menu);
+                context.SaveChanges();
+            }
         }
       }
     }
