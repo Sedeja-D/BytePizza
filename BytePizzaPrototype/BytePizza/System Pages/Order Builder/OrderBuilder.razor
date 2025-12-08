@@ -124,6 +124,7 @@
                                 <label>
                                     <input type="checkbox"
                                            checked="@topping.Selected"
+                                           disabled="@(!topping.Selected && SelectedToppingCount >=4)"
                                            @onchange="(e) => OnToppingChanged(topping, e)" />
                                     @topping.Name
                                 </label>
@@ -308,7 +309,8 @@
         }
 
         // If already at 4, don't allow adding another
-        if (SelectedToppingCount >= 4)
+        const int toppingMax = 4;
+        if (SelectedToppingCount >= toppingMax)
         {
             topping.Selected = false;
             StateHasChanged();
