@@ -83,9 +83,9 @@ namespace BytePizza.Data
                     new MenuItem { Name = "Black Olives", Category = "Topping", MenuItemPrice = 1.00m },
 
                     // Sauces
-                    new MenuItem { Name = "Marinara", Category = "Sauce", MenuItemPrice = 0.00m },
-                    new MenuItem { Name = "Alfredo", Category = "Sauce", MenuItemPrice = 0.00m },
-                    new MenuItem { Name = "BBQ", Category = "Sauce", MenuItemPrice = 0.00m },
+                    new MenuItem { Name = "Red", Category = "Sauce", MenuItemPrice = 0.00m },
+                    new MenuItem { Name = "White", Category = "Sauce", MenuItemPrice = 0.00m },
+                    new MenuItem { Name = "Parmlic", Category = "Sauce", MenuItemPrice = 0.00m },
 
                     // Drinks
                     new MenuItem { Name = "Fountain Soda", Category = "Drink-Small", MenuItemPrice = 1.79m },
