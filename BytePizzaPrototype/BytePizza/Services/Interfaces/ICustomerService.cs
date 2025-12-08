@@ -31,6 +31,15 @@ namespace BytePizza.Services.Interfaces
         /// <returns>True for successful creation, false for failure</returns>
         Task<bool> SignUpAsync(string name, string phone, string address, string password);
 
+        /// <summary>
+        /// Allows user to reset password with valid phone number and a new password
+        /// Could later be tied to a text/email verification
+        /// </summary>
+        /// <param name="phone">User's phone number</param>
+        /// <param name="newPassword">User's new password</param>
+        /// <returns>True for successful reset, false for failed reset</returns>
+        Task<bool> ResetPasswordAsync(string phone, string newPassword);
+
         ///<summary>
         ///Logout customer; wiping CustomerID
         ///</summary>

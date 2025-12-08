@@ -104,6 +104,31 @@ namespace BytePizza.Services.Implementations
             return true;
         }
 
+        public async Task<bool> ResetPasswordAsync(string phone, string newPassword)
+        {
+            if (string.IsNullOrEmpty(phone) || phone.Length != 10)
+            {
+                return false;
+            }
+            if (string.IsNullOrEmpty(newPassword))
+            {
+                return false;
+            }
+
+            var existing = await _context.Customers.FirstOrDefaultAsync(c => c.Phone == phone);
+
+            if (existing == null)
+            {
+                return false;
+            }
+
+            existing.Password = newPassword;
+            await _context.SaveChangesAsync();
+
+            return true;
+
+        }
+
         //wipes CustomerID
         public void Logout()
         {
