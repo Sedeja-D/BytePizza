@@ -21,6 +21,16 @@ namespace BytePizza.Services.Interfaces
         ///<returns> CustomerID or Null for logged out </returns>
         Task<Customer?> GetCustomerAsync();
 
+        /// <summary>
+        /// Creates a new customer
+        /// </summary>
+        /// <param name="name">Customer Name</param>
+        /// <param name="phone">Phone number</param>
+        /// <param name="address">Address</param>
+        /// <param name="password">Password</param>
+        /// <returns>True for successful creation, false for failure</returns>
+        Task<bool> SignUpAsync(string name, string phone, string address, string password);
+
         ///<summary>
         ///Logout customer; wiping CustomerID
         ///</summary>

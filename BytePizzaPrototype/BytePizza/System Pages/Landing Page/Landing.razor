@@ -21,7 +21,7 @@
     <div class="landing-icons">
         <!-- Profile -->
         <!-- Inactive for MVP <button class="icon-plain" onclick="GoToProfile"> -->
-        <button class="icon-plain" type="button">
+        <button class="icon-plain" type="button" @onclick="OpenProfile">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <path d="M12 12c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"
                       fill="none" stroke="white" stroke-width="1.6" />
@@ -138,6 +138,40 @@
         </div>
     }
 
+    <!-- Profile slideout - borrows from ShowCart to allow user to logout/ view profile info -->
+    @if (ShowProfile)
+    {
+        <div class="cart-overlay">
+            <div class="cart-panel">
+                <div class="cart-header">
+                    <span class="cart-title">Your Profile</span>
+                    <button class="cart-close" @onclick="CloseProfile">Close</button>
+                </div>
+
+                <div class="cart-items">
+                    @if (CurrentCustomer != null)
+                    {
+                        <p>Welcome, @(CurrentCustomer?.Name ?? "Guest")!</p>
+                        <p>Phone: @(CurrentCustomer?.Phone ?? "")</p>
+                        <p>Address: @(CurrentCustomer?.Address ?? "")</p>
+                    }
+                    else
+                    {
+                        <p>Welcome, sign in to order.</p>
+                    }
+                </div>
+                @if (CurrentCustomer != null)
+                {
+                <button class="checkout-btn" @onclick="LogOut">LOG OUT</button>
+                }
+                else
+                {
+                <button class="checkout-btn" @onclick="OpenLogin">SIGN IN</button>
+                }
+            </div>
+        </div>
+    }
+
 </div>
 
 @code {
@@ -154,7 +188,12 @@
     string Phone = "";
     string Password = "";
 
-    void OpenLogin() => ShowLogin = true;
+    void OpenLogin()
+    {
+        ShowError = false;
+        ShowLogin = true;
+        ShowProfile = false;
+    }
     void CloseLogin() => ShowLogin = false;
 
     // Called by the buttons in the nav / ORDER NOW
@@ -217,14 +256,24 @@
         }
         else
         {
-            Nav.NavigateTo("/home");
+            Nav.NavigateTo("/");
         }
+    }
+
+    void LogOut()
+    {
+        Phone = "";
+        Password = "";
+        CustomerService.Logout();
+        CloseProfile();
+        Nav.NavigateTo("/");
     }
 
     // ---------------- PROFILE / CART ----------------
     void GoToProfile() => Nav.NavigateTo("/profile");
 
     bool ShowCart = false;
+    bool ShowProfile = false;
 
     class CartItem
     {
@@ -237,6 +286,14 @@
 
     void OpenCart() => ShowCart = true;
     void CloseCart() => ShowCart = false;
+
+    Customer? CurrentCustomer;
+    async Task OpenProfile()
+    {
+        CurrentCustomer = await CustomerService.GetCustomerAsync();
+        ShowProfile = true;
+    }
+    void CloseProfile() => ShowProfile = false;
 
     void IncreaseCartItem(CartItem item) => item.Quantity++;
 
