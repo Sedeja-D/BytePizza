@@ -44,7 +44,7 @@ namespace BytePizza.Services
         /// </summary>
         public decimal GetSubtotal()
         {
-            decimal pizzaTotal = PizzaPrice * PizzaQuantity;
+            decimal pizzaTotal = PizzaPrice;
             decimal drinksTotal = Drinks.Sum(d => d.Price * d.Quantity);
             return pizzaTotal + drinksTotal;
         }
