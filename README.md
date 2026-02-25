@@ -46,7 +46,7 @@ This experience strengthened my understanding of collaborative software developm
 
 ## Screenshot
 
-![Home Screen](images/home.png)
+<img src="images/home.png" alt="Home Screen" width="700">
 
 ---
 
