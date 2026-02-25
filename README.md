@@ -45,7 +45,7 @@ My contributions included:
 This experience strengthened my understanding of collaborative software development, communication within a team environment, and the process of moving from concept to implementation.
 
 ## Screenshot
-<img src="images:home.png" width="600"/>
+<img src="images:home.png"/>
 
 ---
 
